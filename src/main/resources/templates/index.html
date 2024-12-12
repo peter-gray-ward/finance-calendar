@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}"></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script type="text/javascript" src="/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="/lib/moment.min.js"></script>
+</head>
+<body>
+    <button id="expand-to-budget">☰</button>
+    <div id="left-panel">
+        <header id="left" style="background:url(/wallpaper01.webp)">
+            <h3>
+                <div>Regular Expenses</div>
+            </h3>
+            <div class="table" id="expenses">
+                <div class="tr">
+                    <div class="th">Expense</div>
+                <div class="th">Frequency</div>
+                <div class="th">Amount</div>
+                <div class="th">Start Date</div>
+                <div class="th">End Date</div>
+            </div>
+            <div th:each="expense : ${accountInfo.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
+                <input th:value="${ expense.name }" name="name" class="td" type="text">
+                <div class="td select-container td">
+                    <input name="frequency" 
+                        th:value="${ expense.frequency }"
+                        class="select" 
+                        type="text" 
+                        placeholder="frequency" 
+                        data-option="" 
+                        data-options="['weekly','biweekly','monthly']">
+                </div>
+                <input name="amount" class="td" type="number" th:value="${ expense.amount }">
+                <input name="startdate" class="td" type="date" th:value="${ expense.startdate }">
+                <input name="recurrenceenddate" class="td" type="date" value="${ expense.recurrenceenddate }">
+                <button class="delete-expense">-</button>
+            </div>
+        </header>
+    </div>
+    <div id="main" class="authenticated">
+    </div>
+    <button id="expand-to-news">N</button>
+    <div id="right-panel">
+        <footer id="right">
+            <did class="loading">loading...</did>
+        </footer> 
+    </div>
+    <script src="/script.js"></script>
+</body>
+</html>

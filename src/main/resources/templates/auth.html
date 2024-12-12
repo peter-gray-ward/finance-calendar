@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Register</h2>
+    <section id="register">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+        <button>register</button>
+    </section>
+    <hr/>
+    <h2>Login</h2>
+    <section id="login">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+        <button>login</button>
+    </section>
+    <p style="color:red;" th:if="${error}">
+        <span th:text="${error}"></span>
+    </p>
+    <p style="color:green;" th:if="${status}"></p>
+        <span th:text="${status}"></span>
+    </p>
+    <script>
+        function setCookie(name, value) {
+            document.cookie = `${name}=${value};path=/;SameSite=Strict;max-age=${60*60*24}`;
+        }
+        window.onload = function() {
+            var login = document.getElementById('login');
+            var register = document.getElementById('register');
+            var login = document.getElementById('login');
+
+            login.querySelector('button').addEventListener('click', function() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/login");
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.addEventListener("load", function() {
+                    var res = JSON.parse(this.response);
+                    if (res.accessToken) {
+                        setCookie("fcUserId", res.id);
+                        setCookie("fcAccessToken", res.accessToken);
+                        location.replace("/");
+                    }
+                });
+                xhr.send(JSON.stringify({
+                    name: login.querySelector("input[name='name']").value,
+                    password: login.querySelector("input[name='password']").value
+                }))
+            })
+            register.querySelector('button').addEventListener('click', function() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/register");
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.addEventListener("load", function() {
+                    var res = JSON.parse(this.response);
+                    if (res.accessToken) {
+                        setCookie("fcUserId", res.id);
+                        setCookie("fcAccessToken", res.accessToken);
+                        location.replace("/");
+                    }
+                });
+                xhr.send(JSON.stringify({
+                    name: register.querySelector("input[name='name']").value,
+                    password: register.querySelector("input[name='password']").value
+                }))
+            })
+        }
+    </script>
+</body>
+</html>
