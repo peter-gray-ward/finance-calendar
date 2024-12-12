@@ -1,12 +1,15 @@
 package peter.finance_calendar.services;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.Cookie;
 import peter.finance_calendar.models.AccountInfo;
 import peter.finance_calendar.models.Debt;
 import peter.finance_calendar.models.Expense;
@@ -17,6 +20,36 @@ public class AccountService {
     
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    public User getUser(Cookie[] cookies) {
+        Optional<Cookie> userIdCookie = Arrays.stream(cookies)
+                              .filter(c -> c.getName().equals("fcUserId"))
+                              .findFirst();
+        if (userIdCookie == null) {
+            return null;
+        }
+
+        System.out.println("    getUser : " + userIdCookie.get().getValue());
+                              
+        try {
+            String sql = "SELECT name, id, checking_balance FROM public.user WHERE id = ?";
+            
+            User user = jdbcTemplate.queryForObject(
+                sql, 
+                (rs, rowNum) -> new User(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getDouble("checking_balance")
+                ),
+                UUID.fromString(userIdCookie.get().getValue())
+            );
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public User getUser(String name) {
         try {
@@ -85,9 +118,8 @@ public class AccountService {
         return null;
     }
 
-    public AccountInfo getAccountInfo(String name) {
+    public AccountInfo getAccountInfo(User user) {
         try {
-            User user = this.getUser(name);
             AccountInfo info = new AccountInfo(user);
             List<Expense> expenses = this.getExpenses(user);
             info.setExpenses(expenses);

@@ -45,9 +45,19 @@ class Frequency {
 }
 
 public class SyncData {
-    Page page = new Page();
-    Api api = new Api();
-    Frequency frequency = new Frequency();
+    private Page page = new Page();
+    private Api api = new Api();
+    private Frequency frequency = new Frequency();
+    private final String[] dow = new String[]{
+        "Monday","Tuesday",
+        "Wednesday","Thursday","Friday",
+        "Saturday", "Sunday"
+    };
+    private final String[] months = new String[]{
+        "January","February","March","April",
+        "May","June","July","August",
+        "September","October","November","December"
+    };
 
     public Page getPage() {
         return page;
@@ -71,5 +81,13 @@ public class SyncData {
 
     public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
+    }
+
+    public String[] getDow() {
+        return dow;
+    }
+
+    public String[] getMonths() {
+        return months;
     }
 }

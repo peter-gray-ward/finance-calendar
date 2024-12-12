@@ -7,10 +7,18 @@ public class User extends Auth {
     private String accessToken;
     private Double checkingBalance;
 
+    public User() {}
+
     public User(String id, String name, String password, Double checkingBalance) {
         this.id = id;
         this.name = name;
         this.password = password;
+        this.checkingBalance = checkingBalance;
+    }
+
+    public User(String id, String name, Double checkingBalance) {
+        this.id = id;
+        this.name = name;
         this.checkingBalance = checkingBalance;
     }
 

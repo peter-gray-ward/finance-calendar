@@ -11,6 +11,8 @@ public class AccountInfo {
 
     public AccountInfo(User user) {
         this.user = user;
+
+        
     }
 
     // Getters

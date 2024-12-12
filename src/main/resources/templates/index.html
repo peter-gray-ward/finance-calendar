@@ -23,7 +23,7 @@
                 <div class="th">Start Date</div>
                 <div class="th">End Date</div>
             </div>
-            <div th:each="expense : ${accountInfo.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
+            <div th:each="expense : ${info.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
                 <input th:value="${ expense.name }" name="name" class="td" type="text">
                 <div class="td select-container td">
                     <input name="frequency" 
@@ -42,6 +42,79 @@
         </header>
     </div>
     <div id="main" class="authenticated">
+        <div id="calendar-month-header" data-year="${ info.year }" data-month="${ info.month }">
+            <div>
+              <h1 id="month-name" th:text="${ data.months[info.month - 1] }"></h1>&nbsp;&nbsp;
+              <h1 id="year-name" style="font-weight:100" th:text="${ info.year }"></h1>
+            </div>
+            <div id="data" class="search">
+                <input style="display:none;" type="test" placeholder="Go for it!" />
+            </div>
+            <div>
+                <button id="prev-month">
+                    <span>
+                        ∟
+                    </span>
+                </button>
+                <button id="go-to-today">
+                    Today
+                </button>
+                <button id="next-month">
+                    <span>
+                        ∟
+                    </span>
+                </button>
+            </div>
+        </div>
+    
+        <div id="calendar-week-header">
+            <div class="weekend">Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div class="weekend">Sat</div>
+        </div>
+    
+        <div id="calendar">
+            <div th:each="week : ${weeks}" class="week">
+                <div th:each="d : ${week}" th:class="'day-block' + ${d.day == 'Sunday' or d.day == 'Saturday' ? ' weekend' : ''} + ${d.date == 1 ? ' first-of-month' : ''}"
+                    th:attr="data-date=${d.date},
+                            data-dow=${d.day},
+                            data-year=${d.year},
+                            data-month=${d.month},
+                            data-monthname=${data.months[d.month - 1]}">
+                    <div class="day-header">
+                        <div class="total" th:if="${d.today or (d.todayOrLater and not #lists.isEmpty(d.events))}">
+                            <input type="number" th:if="${d.today}"
+                                   th:value="${data.account.checking_balance}"
+                                   id="checking-balance" />
+                            <span th:unless="${d.today}" th:text="${d.total}"></span>
+                        </div>
+        
+                        <div class="new-event">+</div>
+                        
+                        <div th:class="'day-date' + ${d.today ? ' today' : ''}"
+                             th:text="${d.date}">
+                        </div>
+                    </div>
+        
+                    <div class="events">
+                        <div th:each="event : ${d.events}"
+                             th:class="'event' + ${event.exclude == '1' ? ' exclude' : ''}"
+                             th:attr="data-id=${event.id}"
+                             th:id="${event.id}">
+                            <span>•</span>
+                            <span class="summary" th:text="${#strings.replace(#strings.replace(event.summary, '&nbsp;', ''), '   ', '')}"></span>
+                            <span th:class="${event.amount >= 0 ? 'positive' : 'negative'}"
+                                  th:text="${event.amount}">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <button id="expand-to-news">N</button>
     <div id="right-panel">
