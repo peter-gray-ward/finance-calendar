@@ -6,7 +6,7 @@ public class AccountInfo {
     private User user;
     private List<Expense> expenses;
     private List<Debt> debts;
-    private int month = 11;
+    private int month = 12;
     private int year = 2024;
 
     public AccountInfo(User user) {

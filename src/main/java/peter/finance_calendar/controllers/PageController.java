@@ -61,7 +61,7 @@ public class PageController {
         AccountInfo info = accountService.getAccountInfo(user);
 
         int year = 2024;
-        int month = 11;
+        int month = 12;
 
         if (info == null) {
             return "error";
@@ -69,17 +69,11 @@ public class PageController {
 
         List<Event> events = calendarService.selectEvents(user, 2024, 11);
 
-        System.out.println(" ... got " + events.size() + " events");
-
         SyncData data = new SyncData();
-
-        System.out.println("got sync data");
-
-        System.out.println(" ... getting weeks");
         
         List<List<Day>> weeks = calendarUtil.getWeeks(month, year, events);
 
-        System.out.println(" ... got weeks " + weeks.size());
+        System.out.println(data.getMonths()[info.getMonth() -  1]);
 
         model.addAttribute("info", info);
         model.addAttribute("title", "Finance Calendar");

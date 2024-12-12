@@ -83,8 +83,7 @@
                     th:attr="data-date=${d.date},
                             data-dow=${d.day},
                             data-year=${d.year},
-                            data-month=${d.month},
-                            data-monthname=${data.months[d.month - 1]}">
+                            data-month=${d.month}">
                     <div class="day-header">
                         <div class="total" th:if="${d.today or (d.todayOrLater and not #lists.isEmpty(d.events))}">
                             <input type="number" th:if="${d.today}"
