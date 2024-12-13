@@ -73,12 +73,13 @@ body.complex {
 }
 
 body.complex #main {
-	left: 40%;
+	left: 70%;
+	width: 30% !important;
 }
 
 
 body.complex #left-panel {
-	width: 100%;
+	width: 70%;
 	z-index: 99;
     transition: 0.05s linear width;
 }

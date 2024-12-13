@@ -23,7 +23,7 @@ var fc = {
   api: (method, which, data = {}) => {
     return new Promise(resolve => {
       var xhr = new XMLHttpRequest();
-      xhr.open(method, `/api/${which}`, true);
+      xhr.open(method, `/${which}`, true);
       xhr.setRequestHeader('content-type', 'application/json')
       xhr.addEventListener('load', function() {
         var res = JSON.parse(this.response);
@@ -109,7 +109,7 @@ function EditEvent(event, eventId) {
     var modal = document.createElement('div');
     modal.classList.add('modal');
     modal.classList.add('event-modal')
-    modal.innerHTML = res.html;
+    modal.innerHTML = res.template;
 
     body().appendChild(modal);
 
@@ -193,7 +193,7 @@ var events = {
     var event = SerializeEvent()
     fc.api('PUT', Api.SAVE_THIS_EVENT + '/' + event.id, event).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
       }
@@ -204,7 +204,7 @@ var events = {
     var event = SerializeEvent()
     fc.api('PUT', Api.SAVE_THIS_AND_FUTURE_EVENTS + '/' + event.recurrenceid, event).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
       }
@@ -220,7 +220,7 @@ var events = {
     eventId = eventId.dataset.id
     fc.api('GET', Api.CLUDE_THIS_EVENT + '/' + eventId).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-all-these-events').innerHTML = newButtonText + ' all'
       }
@@ -236,7 +236,7 @@ var events = {
     eventRecurrenceid = eventRecurrenceid.dataset.recurrenceid
     fc.api('GET', Api.CLUDE_ALL_THESE_EVENTS + '/' + eventRecurrenceid).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-this-event').innerHTML = newButtonText.replace(' all', '')
       }
@@ -368,7 +368,7 @@ var events = {
     var expenses = $($(event.srcElement).closest('#left')).find('#expenses')[0]
     fc.api('POST', Api.ADD_EXPENSE).then(res => {
       if (res.status == 'success') {
-        expenses.insertAdjacentHTML('beforeend', res.html);
+        expenses.insertAdjacentHTML('beforeend', res.template);
         ADD_EVENTS()
       } else {
         console.error(res.error)
@@ -453,10 +453,12 @@ var events = {
     $('#refresh-calendar').addClass('refreshing');
     fc.api('GET', Api.REFRESH_CALENDAR).then(res => {
       $('#refresh-calendar').removeClass('refreshing');
+      debugger
       process.refreshing = false;
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html;
+        document.getElementById('calendar').outerHTML = res.template;
         ADD_EVENTS()
+        ScrollToFirstOfMonth();
       }
     });   
   },
@@ -465,7 +467,7 @@ var events = {
     var debts = $($(event.srcElement).closest('#left')).find('#debts')[0]
     fc.api('POST', Api.ADD_DEBT).then(res => {
       if (res.status == 'success') {
-        debts.insertAdjacentHTML('beforeend', res.html);
+        debts.insertAdjacentHTML('beforeend', res.template);
         ADD_EVENTS()
       } else {
         console.error(res.error)
@@ -476,7 +478,7 @@ var events = {
   '#prev-month:click': () => {
     fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'prev' }).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html;
+        document.getElementById('calendar').innerHTML = res.template;
         document.getElementById('month-name').innerHTML = res.month
         document.getElementById('year-name').innerHTML = res.year
         ADD_EVENTS()
@@ -486,7 +488,7 @@ var events = {
   '#go-to-today:click': () => {
     fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'this' }).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html;
+        document.getElementById('calendar').innerHTML = res.template;
         document.getElementById('month-name').innerHTML = res.month
         document.getElementById('year-name').innerHTML = res.year
         ADD_EVENTS()
@@ -496,7 +498,7 @@ var events = {
   '#next-month:click': () => {
     fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'next' }).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html;
+        document.getElementById('calendar').innerHTML = res.template;
         document.getElementById('month-name').innerHTML = res.month
         document.getElementById('year-name').innerHTML = res.year
         ADD_EVENTS()
@@ -517,7 +519,7 @@ var events = {
         var planModal = document.createElement('div')
         planModal.id = 'debt-payment-plan'
         planModal.classList.add('modal')
-        planModal.innerHTML = res.html
+        planModal.innerHTML = res.template
         document.body.appendChild(planModal)
       }
     })
@@ -530,7 +532,7 @@ var events = {
     }
     fc.api('DELETE', Api.DELETE_THIS_EVENT + '/' + eventId.dataset.id).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
         document.querySelector('.modal').remove()
       }
     })
@@ -542,7 +544,7 @@ var events = {
     }
     fc.api('DELETE', Api.DELETE_ALL_THESE_EVENTS + '/' + eventId.dataset.recurrenceid).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.html
+        document.getElementById('calendar').innerHTML = res.template
       }
     })
   },
@@ -560,7 +562,7 @@ var events = {
 
       fc.api('POST', Api.ADD_EVENT + '/' + date.dataset.year + '-' + date.dataset.month + '-' + date.dataset.date).then(res => {
         if (res.status == 'success') {
-          document.getElementById('calendar').innerHTML = res.html
+          document.getElementById('calendar').innerHTML = res.template
           EditEvent(e, res.eventId)
         }
       })
@@ -587,7 +589,7 @@ function ChangeCheckingBalance(e) {
       value = Number(value).toFixed(2)
       fc.api('POST', Api.SAVE_CHECKING_BALANCE + '/' + value).then(res => {
         if (res.status == 'success') {
-          document.getElementById('calendar').innerHTML = res.html
+          document.getElementById('calendar').innerHTML = res.template
           ScrollToFirstOfMonth()
           ADD_EVENTS()
         }
@@ -602,9 +604,9 @@ function ChangeCheckingBalance(e) {
 events['button.option:click'] = events['button.option:click'].bind(events)
 
 fc.sync().then(res => {
-    
-  Api = res.api;
-  Page = res.page;
+  console.log(res)
+  Api = res.data.api;
+  Page = res.data.page;
 
 
   ScrollToFirstOfMonth(0)
@@ -685,7 +687,7 @@ function ADD_EVENTS(events_to_add = events) {
   }
 }
 
-
+console.log(">>>")
 
 ADD_EVENTS()
 
@@ -698,7 +700,7 @@ class News {
     news.addEventListener('load', function() {
       var res = JSON.parse(this.response)
       if (res.status == 'success') {
-        document.getElementById("right").innerHTML = res.html
+        document.getElementById("right").innerHTML = res.template
         ADD_EVENTS()
       }
     })

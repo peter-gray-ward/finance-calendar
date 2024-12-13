@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-public class Auth {
+public class Auth extends Model {
     private boolean authenticated;
 
     public boolean getAuthenticated() { return this.authenticated; }

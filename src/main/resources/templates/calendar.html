@@ -1,0 +1,37 @@
+<div id="calendar" th:fragment="calendar">
+    <div th:each="week : ${weeks}" class="week">
+        <div th:each="d : ${week}" th:class="'day-block' + ${d.day == 'Sunday' or d.day == 'Saturday' ? ' weekend' : ''} + ${d.date == 1 ? ' first-of-month' : ''}"
+            th:attr="data-date=${d.date},
+                    data-dow=${d.day},
+                    data-year=${d.year},
+                    data-month=${d.month}">
+            <div class="day-header">
+                <div class="total" th:if="${d.today || (d.todayOrLater && d.events.size() > 0)}">
+                    <input type="number" th:if="${d.today}"
+                            th:value="${info.user.checkingBalance}"
+                            id="checking-balance" />
+                    <span th:unless="${d.today}" th:text="${d.total}"></span>
+                </div>
+
+                <div class="new-event">+</div>
+                
+                <div th:class="'day-date' + ${d.today ? ' today' : ''}"
+                        th:text="${d.date}">
+                </div>
+            </div>
+
+            <div class="events">
+                <div th:each="event : ${d.events}"
+                        th:class="'event' + ${event.exclude == '1' ? ' exclude' : ''}"
+                        th:attr="data-id=${event.id}"
+                        th:id="${event.id}">
+                    <span>•</span>
+                    <span class="summary" th:text="${#strings.replace(#strings.replace(event.summary, '&nbsp;', ''), '   ', '')}"></span>
+                    <span th:class="${event.amount >= 0 ? 'positive' : 'negative'}"
+                            th:text="${event.amount}">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

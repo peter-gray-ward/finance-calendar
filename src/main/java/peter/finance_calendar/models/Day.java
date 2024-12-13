@@ -6,10 +6,12 @@ public class Day {
 	private Integer date;
 	private String day;
 	private List<Event> events;
+	public boolean hasEvents = false;
 	private Integer year;
 	private Integer month;
 	private Boolean todayOrLater;
 	private Boolean today;
+	private Double total;
 
 	public Day() {}
 
@@ -75,5 +77,13 @@ public class Day {
 
 	public void setMonth(Integer month) {
 		this.month = month;
+	}
+
+	public Double getTotal() {
+		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
 	}
 }

@@ -18,26 +18,32 @@
             <div class="table" id="expenses">
                 <div class="tr">
                     <div class="th">Expense</div>
-                <div class="th">Frequency</div>
-                <div class="th">Amount</div>
-                <div class="th">Start Date</div>
-                <div class="th">End Date</div>
-            </div>
-            <div th:each="expense : ${info.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
-                <input th:value="${ expense.name }" name="name" class="td" type="text">
-                <div class="td select-container td">
-                    <input name="frequency" 
-                        th:value="${ expense.frequency }"
-                        class="select" 
-                        type="text" 
-                        placeholder="frequency" 
-                        data-option="" 
-                        data-options="['weekly','biweekly','monthly']">
+                    <div class="th">Frequency</div>
+                    <div class="th">Amount</div>
+                    <div class="th">Start Date</div>
+                    <div class="th">End Date</div>
                 </div>
-                <input name="amount" class="td" type="number" th:value="${ expense.amount }">
-                <input name="startdate" class="td" type="date" th:value="${ expense.startdate }">
-                <input name="recurrenceenddate" class="td" type="date" value="${ expense.recurrenceenddate }">
-                <button class="delete-expense">-</button>
+            
+                <div th:each="expense : ${info.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
+                    <input th:value="${ expense.name }" name="name" class="td" type="text">
+                    <div class="td select-container td">
+                        <input name="frequency" 
+                            th:value="${ expense.frequency }"
+                            class="select" 
+                            type="text" 
+                            placeholder="frequency" 
+                            data-option="" 
+                            data-options="['weekly','biweekly','monthly']">
+                    </div>
+                    <input name="amount" class="td" type="number" th:value="${ expense.amount }">
+                    <input name="startdate" class="td" type="date" th:value="${ expense.startdate }">
+                    <input name="recurrenceenddate" class="td" type="date" value="${ expense.recurrenceenddate }">
+                    <button class="delete-expense">-</button>
+                </div>
+            </div>
+            <div class="tr button-row-right">
+                <button class="add-expense">+</button>
+                <button id="refresh-calendar">↺</button>
             </div>
         </header>
     </div>
@@ -77,43 +83,7 @@
             <div class="weekend">Sat</div>
         </div>
     
-        <div id="calendar">
-            <div th:each="week : ${weeks}" class="week">
-                <div th:each="d : ${week}" th:class="'day-block' + ${d.day == 'Sunday' or d.day == 'Saturday' ? ' weekend' : ''} + ${d.date == 1 ? ' first-of-month' : ''}"
-                    th:attr="data-date=${d.date},
-                            data-dow=${d.day},
-                            data-year=${d.year},
-                            data-month=${d.month}">
-                    <div class="day-header">
-                        <div class="total" th:if="${d.today or (d.todayOrLater and not #lists.isEmpty(d.events))}">
-                            <input type="number" th:if="${d.today}"
-                                   th:value="${data.account.checking_balance}"
-                                   id="checking-balance" />
-                            <span th:unless="${d.today}" th:text="${d.total}"></span>
-                        </div>
-        
-                        <div class="new-event">+</div>
-                        
-                        <div th:class="'day-date' + ${d.today ? ' today' : ''}"
-                             th:text="${d.date}">
-                        </div>
-                    </div>
-        
-                    <div class="events">
-                        <div th:each="event : ${d.events}"
-                             th:class="'event' + ${event.exclude == '1' ? ' exclude' : ''}"
-                             th:attr="data-id=${event.id}"
-                             th:id="${event.id}">
-                            <span>•</span>
-                            <span class="summary" th:text="${#strings.replace(#strings.replace(event.summary, '&nbsp;', ''), '   ', '')}"></span>
-                            <span th:class="${event.amount >= 0 ? 'positive' : 'negative'}"
-                                  th:text="${event.amount}">
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="calendar" th:replace="calendar :: calendar"></div>
     </div>
     <button id="expand-to-news">N</button>
     <div id="right-panel">
@@ -121,6 +91,7 @@
             <did class="loading">loading...</did>
         </footer> 
     </div>
-    <script src="/script.js"></script>
+    <script th:src="@{/script.js}"></script>
+
 </body>
 </html>

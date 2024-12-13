@@ -1,7 +1,10 @@
 package peter.finance_calendar.utils;
 
+import java.util.Calendar;
+
 import org.springframework.stereotype.Component;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +22,10 @@ public class SessionUtil {
             System.out.println("Logging in!");
             System.out.println("Setting " + user.getId() + ".access_token to " + accessToken);
 
+            Calendar todayCal = Calendar.getInstance();
+
+            session.setAttribute("year", todayCal.get(Calendar.YEAR));
+            session.setAttribute("month", todayCal.get(Calendar.MONTH));
             session.setAttribute(user.getId() + ".access_token", accessToken);
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,4 +38,14 @@ public class SessionUtil {
             session.invalidate();
         }
     }
+
+    public static String getCookie(HttpServletRequest req, String name) {
+        Cookie[] cookies = req.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }   
 }

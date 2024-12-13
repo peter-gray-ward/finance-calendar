@@ -3,10 +3,21 @@ package peter.finance_calendar.models;
 public class ControllerResponse<T> {
     String status;
     String template;
-    Object data;
+    T data;
 
     public ControllerResponse(String status) {
         this.status = status;
+    }
+
+    public ControllerResponse(String status, T data) {
+        this.status = status;
+        this.data = data;
+    }
+
+    public ControllerResponse(String status, T data, String template) {
+        this.status = status;
+        this.data = data;
+        this.template = template;
     }
 
     public String getStatus() {
@@ -25,11 +36,11 @@ public class ControllerResponse<T> {
         this.template = template;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 }
