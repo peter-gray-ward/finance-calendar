@@ -3,7 +3,7 @@ var main = () => document.getElementById('main');
 var modal = document.createElement('div');
     modal.classList.add('modal');
 var calendar = () => document.getElementById('calendar');
-let Api, Page;
+let Api, Page, Months;
 let process = {
   expanding: false,
   refreshing: false
@@ -476,34 +476,42 @@ var events = {
   },
 
   '#prev-month:click': () => {
-    fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'prev' }).then(res => {
+    fc.api('POST', Api.CHANGE_MONTH + '/prev').then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template;
-        document.getElementById('month-name').innerHTML = res.month
-        document.getElementById('year-name').innerHTML = res.year
+        document.getElementById('calendar').outerHTML = res.template;
+        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
+        ScrollToFirstOfMonth()
       }
     })
   },
   '#go-to-today:click': () => {
-    fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'this' }).then(res => {
+    fc.api('POST', Api.CHANGE_MONTH + '/this').then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template;
-        document.getElementById('month-name').innerHTML = res.month
-        document.getElementById('year-name').innerHTML = res.year
+        document.getElementById('calendar').outerHTML = res.template;
+        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
+        ScrollToFirstOfMonth()
       }
     })
   },
   '#next-month:click': () => {
-    fc.api('POST', Api.CHANGE_MONTH_YEAR, { which: 'next' }).then(res => {
+    fc.api('POST', Api.CHANGE_MONTH + '/next').then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template;
-        document.getElementById('month-name').innerHTML = res.month
-        document.getElementById('year-name').innerHTML = res.year
+        document.getElementById('calendar').outerHTML = res.template;
+        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
+        ScrollToFirstOfMonth()
       }
     })
+  },
+  '#logout:click': () => {
+    fc.api('POST', Api.LOGOUT).then(res => {
+      location.reload();
+    });
   },
 
   '#checking-balance:change': ChangeCheckingBalance,
@@ -607,7 +615,7 @@ fc.sync().then(res => {
   console.log(res)
   Api = res.data.api;
   Page = res.data.page;
-
+  Months = res.data.months;
 
   ScrollToFirstOfMonth(0)
 });

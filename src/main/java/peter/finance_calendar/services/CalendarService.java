@@ -113,8 +113,8 @@ public class CalendarService {
                 + " FROM public.event"
                 + " WHERE user_id = ?"
                 + " AND ("
-                + "     date >= DATE_TRUNC('month', DATE '" + year + "-" + month + "-01') - INTERVAL '1 month'"
-                + "     AND date < DATE_TRUNC('month', DATE '" + year + "-" + month + "-01') + INTERVAL '2 months'"
+                + "     date >= DATE_TRUNC('month', DATE '" + year + "-" + (month + 1)+ "-01') - INTERVAL '1 month'"
+                + "     AND date < DATE_TRUNC('month', DATE '" + year + "-" + (month + 1) + "-01') + INTERVAL '2 months'"
                 + " )";
             System.out.println(sql);
             List<Event> events = jdbcTemplate.query(

@@ -18,15 +18,13 @@ public class SessionUtil {
         
         try {
             String accessToken = user.getAccessToken();
-
-            System.out.println("Logging in!");
-            System.out.println("Setting " + user.getId() + ".access_token to " + accessToken);
+            String userId = user.getId();
 
             Calendar todayCal = Calendar.getInstance();
 
-            session.setAttribute("year", todayCal.get(Calendar.YEAR));
-            session.setAttribute("month", todayCal.get(Calendar.MONTH));
-            session.setAttribute(user.getId() + ".access_token", accessToken);
+            session.setAttribute(userId + ".year", todayCal.get(Calendar.YEAR));
+            session.setAttribute(userId + ".month", todayCal.get(Calendar.MONTH));
+            session.setAttribute(userId + ".access_token", accessToken);
         } catch (Exception e) {
             e.printStackTrace();
         }

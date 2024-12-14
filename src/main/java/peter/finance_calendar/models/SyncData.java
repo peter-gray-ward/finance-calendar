@@ -19,7 +19,7 @@ class Api {
     public String DELETE_EXPENSE = "delete-expense";
     public String UPDATE_EXPENSE = "update-expense";
     public String REFRESH_CALENDAR = "refresh-calendar";
-    public String CHANGE_MONTH_YEAR = "update-month-year";
+    public String CHANGE_MONTH = "change-month";
     public String GET_EVENT = "get-event";
     public String SAVE_THIS_EVENT = "save-this-event";
     public String SAVE_THIS_AND_FUTURE_EVENTS = "save-this-and-future-events";
@@ -33,6 +33,7 @@ class Api {
     public String DELETE_THIS_EVENT = "delete-this-event";
     public String DELETE_ALL_THESE_EVENTS = "delete-all-these-events";
     public String ADD_EVENT = "add-event";
+    public String LOGOUT = "logout";
 
 }
 

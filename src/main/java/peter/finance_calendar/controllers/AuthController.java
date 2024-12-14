@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import peter.finance_calendar.models.Auth;
 import peter.finance_calendar.models.ServiceResult;
@@ -46,5 +48,11 @@ public class AuthController {
         Auth auth = new Auth();
         auth.setAuthenticated(false);
         return new ResponseEntity<>(auth, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Boolean> logout(HttpServletRequest req, HttpServletResponse res) {
+        SessionUtil.logout(req, res);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }

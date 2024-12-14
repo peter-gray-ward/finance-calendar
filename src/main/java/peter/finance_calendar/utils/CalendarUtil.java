@@ -19,6 +19,9 @@ import peter.finance_calendar.models.User;
 public class CalendarUtil {
 
     public List<List<Day>> getWeeks(User user, int month, int year, List<Event> events) {
+        System.out.println("\n getting weeks for " + year + ": " + month + "\n");
+
+
         List<List<Day>> weeks = new ArrayList<>();
         String[] DOW = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 

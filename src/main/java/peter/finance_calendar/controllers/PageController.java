@@ -40,17 +40,19 @@ public class PageController {
         try {
             Cookie[] cookies = req.getCookies();
             User user = accountService.getUser(cookies);
-            Integer year = (Integer) session.getAttribute("year");
-            Integer month = (Integer) session.getAttribute("month");
+
+            if (user == null) {
+                return "auth";
+            }
+
+            String userId = user.getId();
+            Integer year = (Integer) session.getAttribute(userId + ".year");
+            Integer month = (Integer) session.getAttribute(userId + ".month");
 
             System.out.println("Getting calendar for " + year + ": " + month);
 
             if (year == null || month == null) {
                 SessionUtil.logout(req, res);
-                return "auth";
-            }
-
-            if (user == null) {
                 return "auth";
             }
 
