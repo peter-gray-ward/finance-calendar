@@ -193,7 +193,7 @@ var events = {
     var event = SerializeEvent()
     fc.api('PUT', Api.SAVE_THIS_EVENT + '/' + event.id, event).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
       }
@@ -204,7 +204,7 @@ var events = {
     var event = SerializeEvent()
     fc.api('PUT', Api.SAVE_THIS_AND_FUTURE_EVENTS + '/' + event.recurrenceid, event).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
       }
@@ -220,7 +220,7 @@ var events = {
     eventId = eventId.dataset.id
     fc.api('GET', Api.CLUDE_THIS_EVENT + '/' + eventId).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-all-these-events').innerHTML = newButtonText + ' all'
       }
@@ -236,7 +236,7 @@ var events = {
     eventRecurrenceid = eventRecurrenceid.dataset.recurrenceid
     fc.api('GET', Api.CLUDE_ALL_THESE_EVENTS + '/' + eventRecurrenceid).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-this-event').innerHTML = newButtonText.replace(' all', '')
       }
@@ -540,7 +540,7 @@ var events = {
     }
     fc.api('DELETE', Api.DELETE_THIS_EVENT + '/' + eventId.dataset.id).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
         document.querySelector('.modal').remove()
       }
     })
@@ -552,7 +552,7 @@ var events = {
     }
     fc.api('DELETE', Api.DELETE_ALL_THESE_EVENTS + '/' + eventId.dataset.recurrenceid).then(res => {
       if (res.status == 'success') {
-        document.getElementById('calendar').innerHTML = res.template
+        document.getElementById('calendar').outerHTML = res.template
       }
     })
   },
@@ -570,7 +570,7 @@ var events = {
 
       fc.api('POST', Api.ADD_EVENT + '/' + date.dataset.year + '-' + date.dataset.month + '-' + date.dataset.date).then(res => {
         if (res.status == 'success') {
-          document.getElementById('calendar').innerHTML = res.template
+          document.getElementById('calendar').outerHTML = res.template
           EditEvent(e, res.eventId)
         }
       })
@@ -597,7 +597,7 @@ function ChangeCheckingBalance(e) {
       value = Number(value).toFixed(2)
       fc.api('POST', Api.SAVE_CHECKING_BALANCE + '/' + value).then(res => {
         if (res.status == 'success') {
-          document.getElementById('calendar').innerHTML = res.template
+          document.getElementById('calendar').outerHTML = res.template
           ScrollToFirstOfMonth()
           ADD_EVENTS()
         }

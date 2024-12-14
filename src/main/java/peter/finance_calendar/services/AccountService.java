@@ -13,10 +13,12 @@ import jakarta.servlet.http.Cookie;
 import peter.finance_calendar.models.AccountInfo;
 import peter.finance_calendar.models.Debt;
 import peter.finance_calendar.models.Expense;
+import peter.finance_calendar.models.ServiceResult;
 import peter.finance_calendar.models.User;
 
 @Service
 public class AccountService {
+    
     
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -28,8 +30,6 @@ public class AccountService {
         if (userIdCookie == null) {
             return null;
         }
-
-        System.out.println("    getUser : " + userIdCookie.get().getValue());
                               
         try {
             String sql = "SELECT name, id, checking_balance FROM public.user WHERE id = ?";
@@ -131,5 +131,33 @@ public class AccountService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public ServiceResult updateCheckingBalance(User user, Double checkingBalance) {
+        try {
+            jdbcTemplate.update(
+                "UPDATE public.user"
+                + " SET checking_balance = ?"
+                + " WHERE id = ?",
+                checkingBalance,
+                UUID.fromString(user.getId())
+            );
+
+            user.setCheckingBalance(checkingBalance);
+
+            return new ServiceResult("success", null, user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult("error", e, e.getMessage());
+        }
+    }
+
+    public ServiceResult updateExpense(Expense expense) {
+        try {
+
+            return new ServiceResult("success", null);
+        } catch (Exception e) {
+            return new ServiceResult("error", e, e.getMessage());
+        }
     }
 }
