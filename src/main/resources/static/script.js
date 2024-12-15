@@ -64,15 +64,19 @@ var SerializeAndSave = undefined;
 
 function SerializeAndSaveExpense(id) {
   var row = document.getElementById(id);
-  var json = JSON.stringify({
+  var expense = {
+    id: row.id,
     name: row.children[0].value,
-    frequency: row.children[1].children[0].value,
     amount: row.children[2].value,
     startdate: moment(row.children[3].value).format('yyyy-MM-DD'),
     recurrenceenddate: moment(row.children[4].value).format('yyyy-MM-DD'),
-    expense_id: row.id,
-  });
-  fc.api('POST', Api.UPDATE_EXPENSE + '/' + id, json);
+    frequency: row.children[1].children[0].value
+  };
+  fc.api('POST', Api.UPDATE_EXPENSE, expense).then(res => {
+    if (res.status !== 'success') {
+      alert(res.status)
+    }
+  })
 }
 
 function SerializeAndSaveDebt(id) {

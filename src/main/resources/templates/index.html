@@ -40,7 +40,7 @@
                     </div>
                     <input name="amount" class="td" type="number" th:value="${ expense.amount }">
                     <input name="startdate" class="td" type="date" th:value="${ expense.startdate }">
-                    <input name="recurrenceenddate" class="td" type="date" value="${ expense.recurrenceenddate }">
+                    <input name="recurrenceenddate" class="td" type="date" th:value="${ expense.recurrenceenddate }">
                     <button class="delete-expense">-</button>
                 </div>
             </div>

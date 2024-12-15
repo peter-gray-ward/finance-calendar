@@ -122,6 +122,7 @@ public class AccountService {
         try {
             AccountInfo info = new AccountInfo(user);
             List<Expense> expenses = this.getExpenses(user);
+
             info.setExpenses(expenses);
             // List<Debt> debts = this.getDebts(user);
             // info.setDebts(debts);
@@ -152,9 +153,21 @@ public class AccountService {
         }
     }
 
-    public ServiceResult updateExpense(Expense expense) {
+    public ServiceResult updateExpense(User user, Expense expense) {
         try {
-
+            jdbcTemplate.update(
+                "UPDATE public.expense"
+                + " SET name = ?, amount = ?, recurrenceenddate = ?, startdate = ?, frequency = ?"
+                + " WHERE user_id = ?"
+                + " AND id = ?",
+                expense.getName(),
+                expense.getAmount(),
+                expense.getRecurrenceenddate(),
+                expense.getStartdate(),
+                expense.getFrequency(),
+                UUID.fromString(user.getId()),
+                UUID.fromString(expense.getId())
+            );
             return new ServiceResult("success", null);
         } catch (Exception e) {
             return new ServiceResult("error", e, e.getMessage());

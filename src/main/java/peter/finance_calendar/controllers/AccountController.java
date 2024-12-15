@@ -4,11 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import peter.finance_calendar.models.ControllerResponse;
+import peter.finance_calendar.models.Expense;
 import peter.finance_calendar.models.ServiceResult;
 import peter.finance_calendar.models.User;
 import peter.finance_calendar.services.AccountService;
@@ -37,4 +39,16 @@ public class AccountController {
         String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
         return new ResponseEntity<>(new ControllerResponse<>(updatedUser.status, (User)updatedUser.data, calendarFragment), HttpStatus.OK);
     }
+
+    @PostMapping("/update-expense")
+    public ResponseEntity<ControllerResponse<Boolean>> updateExpense(HttpServletRequest req, @RequestBody Expense expense) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult expenseUpdated = accountService.updateExpense(user, expense);
+        if (expenseUpdated.status.equals("success") == false) {
+            return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status, false), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status, true), HttpStatus.OK);
+    }
+
+    
 }

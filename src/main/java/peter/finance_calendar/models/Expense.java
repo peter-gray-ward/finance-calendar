@@ -11,6 +11,8 @@ public class Expense {
     private Date startdate;
     private String frequency;
 
+    public Expense() {}
+
     public Expense(String id, String user_id, String name, Double amount, Date recurrenceenddate, Date startdate, String frequency) {
         this.id = id;
         this.user_id = user_id;
