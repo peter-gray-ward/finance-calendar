@@ -1,6 +1,7 @@
 package peter.finance_calendar.services;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -149,6 +150,55 @@ public class AccountService {
             return new ServiceResult("success", null, user);
         } catch (Exception e) {
             e.printStackTrace();
+            return new ServiceResult("error", e, e.getMessage());
+        }
+    }
+
+    
+    public ServiceResult addExpense(User user) {
+        try {
+            UUID expenseId = UUID.randomUUID();
+            jdbcTemplate.update(
+                "INSERT INTO public.expense"
+                + " (id, name, amount, recurrenceenddate, startdate, frequency, user_id)"
+                + " VALUES (?, '', 0.0, ?, ?, 'monthly', ?)",
+                expenseId,
+                Calendar.getInstance().getTime(),
+                Calendar.getInstance().getTime(),
+                UUID.fromString(user.getId())
+            );
+            Expense expense = jdbcTemplate.queryForObject(
+                "SELECT *"
+                + " FROM public.expense"
+                + " WHERE id = ?",
+                (rs, rowNum) -> new Expense(
+                    rs.getString("id"),
+                    rs.getString("user_id"),
+                    rs.getString("name"),
+                    rs.getDouble("amount"),
+                    rs.getDate("recurrenceenddate"),
+                    rs.getDate("startdate"),
+                    rs.getString("frequency")
+                ),
+                expenseId
+            );
+            return new ServiceResult("success", null, expense);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult("error", e, e.getMessage());
+        }
+    }
+    public ServiceResult deleteExpense(User user, String expenseId) {
+        try {
+            jdbcTemplate.update(
+                "DELETE FROM public.expense"
+                + " WHERE user_id = ?"
+                + " AND id = ?",
+                UUID.fromString(user.getId()),
+                UUID.fromString(expenseId)
+            );
+            return new ServiceResult("success", null);
+        } catch (Exception e) {
             return new ServiceResult("error", e, e.getMessage());
         }
     }

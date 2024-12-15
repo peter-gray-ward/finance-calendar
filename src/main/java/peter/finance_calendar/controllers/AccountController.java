@@ -2,6 +2,7 @@ package peter.finance_calendar.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,26 @@ public class AccountController {
         int month = (int) session.getAttribute(user.getId() + ".month");
         String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
         return new ResponseEntity<>(new ControllerResponse<>(updatedUser.status, (User)updatedUser.data, calendarFragment), HttpStatus.OK);
+    }
+
+    @PostMapping("/add-expense")
+    public ResponseEntity<ControllerResponse<?>> addExpense(HttpServletRequest req) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult addedExpense = accountService.addExpense(user);
+        if (addedExpense.status.equals("success") == false) {
+            return new ResponseEntity<>(new ControllerResponse<>(addedExpense.status, addedExpense.exception), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(addedExpense.status, addedExpense.data), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-expense/{expenseId}")
+    public ResponseEntity<ControllerResponse<?>> deleteExpense(HttpServletRequest req, @PathVariable String expenseId) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult expenseDeleted = accountService.deleteExpense(user, expenseId);
+        if (expenseDeleted.status.equals("success") == false) {
+            return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status, expenseDeleted.data), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status, expenseDeleted.exception), HttpStatus.OK);
     }
 
     @PostMapping("/update-expense")

@@ -27,22 +27,7 @@
                     <div class="th">End Date</div>
                 </div>
             
-                <div th:each="expense : ${info.expenses}" class="tr data id expenses" th:id="${ expense.id }" data-name="expense">
-                    <input th:value="${ expense.name }" name="name" class="td" type="text">
-                    <div class="td select-container td">
-                        <input name="frequency" 
-                            th:value="${ expense.frequency }"
-                            class="select" 
-                            type="text" 
-                            placeholder="frequency" 
-                            data-option="" 
-                            data-options="['weekly','biweekly','monthly']">
-                    </div>
-                    <input name="amount" class="td" type="number" th:value="${ expense.amount }">
-                    <input name="startdate" class="td" type="date" th:value="${ expense.startdate }">
-                    <input name="recurrenceenddate" class="td" type="date" th:value="${ expense.recurrenceenddate }">
-                    <button class="delete-expense">-</button>
-                </div>
+                <div th:replace="expense :: expense"></div>
             </div>
             <div class="tr button-row-right">
                 <button class="add-expense">+</button>

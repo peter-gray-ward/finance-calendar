@@ -372,7 +372,8 @@ var events = {
     var expenses = $($(event.srcElement).closest('#left')).find('#expenses')[0]
     fc.api('POST', Api.ADD_EXPENSE).then(res => {
       if (res.status == 'success') {
-        expenses.insertAdjacentHTML('beforeend', res.template);
+        var expenseFragment = renderExpenseFragment(res.data);
+        expenses.insertAdjacentHTML('beforeend', expenseFragment);
         ADD_EVENTS()
       } else {
         console.error(res.error)
@@ -639,6 +640,25 @@ window.addEventListener('resize', function(event) {
   ScrollToFirstOfMonth(0);
   runTemps();
 });
+
+function renderExpenseFragment(expense) {
+  return `<div class="tr data id expenses" id="${ expense.id }" data-name="expense">
+    <input value="${ expense.name }" name="name" class="td" type="text">
+    <div class="td select-container td">
+        <input name="frequency" 
+            value="${ expense.frequency }"
+            class="select" 
+            type="text" 
+            placeholder="frequency" 
+            data-option="" 
+            data-options="['weekly','biweekly','monthly']">
+    </div>
+    <input name="amount" class="td" type="number" value="${ expense.amount }">
+    <input name="startdate" class="td" type="date" value="${ expense.startdate }">
+    <input name="recurrenceenddate" class="td" type="date" value="${ expense.recurrenceenddate }">
+    <button class="delete-expense">-</button>
+</div>`
+}
 
 
 function runTemps() {
