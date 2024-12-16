@@ -31,7 +31,7 @@ public class AccountController {
     @PostMapping("/save-checking-balance/{checkingBalance}")
     public ResponseEntity<ControllerResponse<?>> saveCheckingBalance(HttpServletRequest req, HttpSession session, @PathVariable Double checkingBalance) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult updatedUser = accountService.updateCheckingBalance(user, checkingBalance);
+        ServiceResult<User> updatedUser = accountService.updateCheckingBalance(user, checkingBalance);
         if (updatedUser.exception != null) { 
             return new ResponseEntity<>(new ControllerResponse<>(updatedUser.status, updatedUser.exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -44,7 +44,7 @@ public class AccountController {
     @PostMapping("/add-expense")
     public ResponseEntity<ControllerResponse<?>> addExpense(HttpServletRequest req) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult addedExpense = accountService.addExpense(user);
+        ServiceResult<Expense> addedExpense = accountService.addExpense(user);
         if (addedExpense.status.equals("success") == false) {
             return new ResponseEntity<>(new ControllerResponse<>(addedExpense.status, addedExpense.exception), HttpStatus.BAD_REQUEST);
         }
@@ -54,7 +54,7 @@ public class AccountController {
     @DeleteMapping("/delete-expense/{expenseId}")
     public ResponseEntity<ControllerResponse<?>> deleteExpense(HttpServletRequest req, @PathVariable String expenseId) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult expenseDeleted = accountService.deleteExpense(user, expenseId);
+        ServiceResult<Expense> expenseDeleted = accountService.deleteExpense(user, expenseId);
         if (expenseDeleted.status.equals("success") == false) {
             return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status, expenseDeleted.data), HttpStatus.BAD_REQUEST);
         }
@@ -64,7 +64,7 @@ public class AccountController {
     @PostMapping("/update-expense")
     public ResponseEntity<ControllerResponse<Boolean>> updateExpense(HttpServletRequest req, @RequestBody Expense expense) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult expenseUpdated = accountService.updateExpense(user, expense);
+        ServiceResult<Expense> expenseUpdated = accountService.updateExpense(user, expense);
         if (expenseUpdated.status.equals("success") == false) {
             return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status, false), HttpStatus.BAD_REQUEST);
         }

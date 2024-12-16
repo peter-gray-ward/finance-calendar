@@ -22,7 +22,7 @@
 
             <div class="events">
                 <div th:each="event : ${d.events}"
-                        th:class="'event' + ${event.exclude == '1' ? ' exclude' : ''}"
+                        th:class="'event' + ${event.exclude ? ' exclude' : ''}"
                         th:attr="data-id=${event.id}"
                         th:id="${event.id}">
                     <span>•</span>

@@ -678,7 +678,7 @@ header button:hover {
 	width: var(--modal-width);
 	box-shadow: 0 0 3px 0;
 	border-radius: 5px;
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 	z-index: 2;
 }
 
@@ -950,7 +950,7 @@ header button:hover {
 
 .button-footer button:active, .button-footer button.active {
 	cursor: pointer;
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 	color: white;
 }
 
@@ -1412,13 +1412,13 @@ div.graphic {
 }
 #event-edit #summary-div div:first-of-type {
 	font-size: 1.75rem;
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 	color: white;
 	font-family: Andale Mono;
 }
 #event-edit #time-container div:last-of-type input {
 	color: white;
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 }
 
 #event-news-container {
@@ -1494,7 +1494,7 @@ div.graphic {
 }
 #event-edit input:nth-of-type(1) {
 	color: white;
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 	flex-grow: 1;
 	font-size: 1rem;
 	padding: 0.15rem;
@@ -1541,7 +1541,7 @@ div[contenteditable]:focus {
 	font-family: system-ui;
 }
 #event-edit #amount-div input {
-	background: url(/static/waternormals.jpg);
+	background: url(/waternormals.jpg);
 	color: white !important;
 	font-size: 1.75rem;
 	text-alignt: center;

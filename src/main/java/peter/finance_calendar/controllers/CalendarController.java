@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import peter.finance_calendar.models.ControllerResponse;
+import peter.finance_calendar.models.Event;
 import peter.finance_calendar.models.ServiceResult;
 import peter.finance_calendar.models.SyncData;
 import peter.finance_calendar.models.User;
@@ -104,5 +106,43 @@ public class CalendarController {
         data.put("year", year);
         data.put("month", month);
         return new ResponseEntity<>(new ControllerResponse<>("success", data, calendarFragment), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-event/{eventId}")
+    public ResponseEntity<ControllerResponse<?>> getEvent(HttpServletRequest req, @PathVariable String eventId) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult eventResult = calendarService.getEvent(user, eventId);
+        if (eventResult.status.equals("success")) {
+            Event event = (Event) eventResult.data;
+            String eventFragment = calendarService.generateEventFragment(event);
+            return new ResponseEntity<>(new ControllerResponse<>("success", event, eventFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(eventResult.status), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PutMapping("/clude-this-event/{id}")
+    public ResponseEntity<ControllerResponse<Boolean>> cludeThisEvent(HttpServletRequest req, HttpSession session, @PathVariable String id) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<Boolean> eventResult = calendarService.cludeEvent(user, id);
+        if (eventResult.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", true, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(eventResult.status, false), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PutMapping("/clude-all-these-events/{recurrenceid}")
+    public ResponseEntity<ControllerResponse<Boolean>> cludeAllTheseEvents(HttpServletRequest req, HttpSession session, @PathVariable String recurrenceid) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<Boolean> eventResult = calendarService.cludeAllEventTheseEvents(user, recurrenceid);
+        if (eventResult.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", true, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(eventResult.status, false), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

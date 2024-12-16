@@ -44,7 +44,6 @@ public class CalendarUtil {
 
         // Generate days covering the previous month, current month, and next month
         List<Day> currentWeek = new ArrayList<>();
-        double total = user.getCheckingBalance();
         while (weeks.size() < 12) {
             int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
             int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1; // Sunday = 0, Monday = 1, etc.
@@ -60,7 +59,7 @@ public class CalendarUtil {
             day.setMonth(cal.get(Calendar.MONTH));
 
             if (isToday) {
-                day.setTotal(total);
+                day.setTotal(user.getCheckingBalance());
             }
 
             List<Event> dayEvents = new ArrayList<>();
@@ -71,15 +70,17 @@ public class CalendarUtil {
                 if (c.equals(cal)) {
                     day.hasEvents = true;
                     dayEvents.add(event);
-                    if (isAfterToday) {
-                        total += event.getAmount();
-                    }
+                    System.out.println(event.getTotal());
+                    day.setTotal(event.getTotal());
                 }
             }
             day.setEvents(dayEvents);
             day.setToday(isToday);
             day.setTodayOrLater(isAfterToday);
-            day.setTotal(isAfterToday ? total : 0);
+            if (day.hasEvents == false) {
+                day.setTotal(0.0);
+            }
+            
 
             currentWeek.add(day);
 
@@ -154,17 +155,18 @@ public class CalendarUtil {
             Date date = event.getDate();
             Calendar eventDate = Calendar.getInstance();
             eventDate.setTime(date);
-            if (eventDate.before(today)) {
-                continue;
-            }
-            if (started == false) {
+            if (eventDate.after(today)) {
                 started = true;
-                event.setTotal(total);
-                total -= event.getAmount();
-                continue;
             }
-            event.setTotal(total);
-            total -= event.getAmount();
+            if (started) {
+                if (event.getExclude() == false) {
+                    total += event.getAmount();
+                }
+                System.out.println(total);
+                event.setTotal(total);
+            } else {
+                event.setTotal(0.0);
+            }
         }
         return events;
     }

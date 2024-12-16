@@ -180,19 +180,6 @@ var events = {
     }
   },
   
-  '.select:blur': function(event) {
-    // var isOption = event.target
-    // if (isOption.classList.contains('option')) return
-    // while (isOption && isOption.classList.contains('option') == false) {
-    //   isOption = isOption.parentElement
-    // }
-    // if (isOption) return
-    // var input = event.srcElement;
-    // var sc = $(event.target).closest('.select-container')
-    // $(sc).removeClass('active');
-    // sc[0].querySelectorAll('.option').forEach(el => el.remove());
-  },
-
   '#save-this-event:click': (e) => {
     var event = SerializeEvent()
     fc.api('PUT', Api.SAVE_THIS_EVENT + '/' + event.id, event).then(res => {
@@ -222,11 +209,12 @@ var events = {
       eventId = eventId.parentElement
     }
     eventId = eventId.dataset.id
-    fc.api('GET', Api.CLUDE_THIS_EVENT + '/' + eventId).then(res => {
+    fc.api('PUT', Api.CLUDE_THIS_EVENT + '/' + eventId).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-all-these-events').innerHTML = newButtonText + ' all'
+        ScrollToFirstOfMonth()
       }
     })
   },
@@ -238,11 +226,12 @@ var events = {
       eventRecurrenceid = eventRecurrenceid.parentElement
     }
     eventRecurrenceid = eventRecurrenceid.dataset.recurrenceid
-    fc.api('GET', Api.CLUDE_ALL_THESE_EVENTS + '/' + eventRecurrenceid).then(res => {
+    fc.api('PUT', Api.CLUDE_ALL_THESE_EVENTS + '/' + eventRecurrenceid).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-this-event').innerHTML = newButtonText.replace(' all', '')
+        ScrollToFirstOfMonth()
       }
     })
   },

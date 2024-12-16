@@ -18,6 +18,7 @@ import jakarta.annotation.PostConstruct;
 import peter.finance_calendar.models.AccountInfo;
 import peter.finance_calendar.models.Day;
 import peter.finance_calendar.models.Event;
+import peter.finance_calendar.models.EventRowMapper;
 import peter.finance_calendar.models.Expense;
 import peter.finance_calendar.models.ServiceResult;
 import peter.finance_calendar.models.SyncData;
@@ -35,6 +36,7 @@ public class CalendarService {
     private AccountService accountService;
 
     private String cachedCalendarTemplate;
+    private String cachedEventTemplate;
 
     public CalendarService(CalendarUtil calendarUtil, AccountService accountService) {
         this.calendarUtil = calendarUtil;
@@ -46,13 +48,17 @@ public class CalendarService {
         String templatePath = "src/main/resources/templates/calendar.html";
         String rawTemplate = Files.readString(Path.of(templatePath));
         cachedCalendarTemplate = rawTemplate;
+
+        templatePath = "src/main/resources/templates/event.html";
+        rawTemplate = Files.readString(Path.of(templatePath));
+        cachedEventTemplate = rawTemplate;
     }
 
     public String getCalendarTemplate() {
         return cachedCalendarTemplate;
     }
 
-    public ServiceResult generateEventsFromExpenses(User user) {
+    public ServiceResult<Boolean> generateEventsFromExpenses(User user) {
         try {
             List<Expense> expenses = jdbcTemplate.query(
                 "SELECT * FROM public.expense"
@@ -100,10 +106,10 @@ public class CalendarService {
                 }
             );
 
-            return new ServiceResult("success");
+            return new ServiceResult<>("success", true);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ServiceResult("error", e, e.getMessage());
+            return new ServiceResult<>("error", e, false);
         }
     }
 
@@ -119,19 +125,7 @@ public class CalendarService {
             System.out.println(sql);
             List<Event> events = jdbcTemplate.query(
                 sql,
-                (rs, rowNum) -> new Event(
-                    rs.getString("id"),
-                    rs.getString("recurrenceid"),
-                    rs.getString("summary"),
-                    rs.getDate("date"),
-                    rs.getDate("recurrenceenddate"),
-                    rs.getDouble("amount"),
-                    rs.getDouble("total"),
-                    rs.getDouble("balance"),
-                    rs.getBoolean("exclude"),
-                    rs.getString("frequency"),
-                    rs.getString("user_id")
-                ),
+                new EventRowMapper(),
                 UUID.fromString(user.getId())
             );
 
@@ -168,6 +162,101 @@ public class CalendarService {
         } catch (Exception e) {
             e.printStackTrace();
             return "Exception generating calendar: " + e.getMessage();
+        }
+    }
+
+    public String generateEventFragment(Event event) {
+        try {
+            TemplateEngine templateEngine = new TemplateEngine();
+            Context context = new Context();
+            
+            context.setVariable("event", event);
+
+            return templateEngine.process(cachedEventTemplate, context);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Exception generating event: " + e.getMessage();
+        }
+    }
+
+    public ServiceResult<Event> getEvent(User user, String eventId) {
+        try {
+            Event event = jdbcTemplate.queryForObject(
+                "SELECT *"
+                + " FROM public.event"
+                + " WHERE user_id = ?"
+                + " AND id = ?", 
+                new EventRowMapper(),
+                UUID.fromString(user.getId()),
+                UUID.fromString(eventId)
+            );
+            return new ServiceResult<>("success", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult<>("error", null);
+        }
+    }
+
+    private void updateEventTotals(User user) {
+        try {
+            List<Event> events = jdbcTemplate.query(
+                "SELECT *"
+                + " FROM public.event"
+                + " WHERE user_id = ?",
+                new EventRowMapper(),
+                UUID.fromString(user.getId())
+            );
+            events = calendarUtil.calculateTotals(user, events);
+            jdbcTemplate.batchUpdate(
+                "UPDATE public.event"
+                + " SET total = ?"
+                + " WHERE user_id = ? AND id = ?",
+                events,
+                events.size(),
+                (ps, event) -> {
+                    ps.setDouble(1, event.getTotal());
+                    ps.setObject(2, UUID.fromString(event.getUserId()));
+                    ps.setObject(3, UUID.fromString(event.getId()));
+                }
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public ServiceResult<Boolean> cludeEvent(User user, String id) {
+        try {
+            jdbcTemplate.update(
+                "UPDATE public.event"
+                + " SET exclude = exclude # B'1'"
+                + " WHERE user_id = ?"
+                + " AND id = ?",
+                UUID.fromString(user.getId()),
+                UUID.fromString(id)
+            );
+            this.updateEventTotals(user);
+            return new ServiceResult<>("success", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult<>("error", e, false);
+        }
+    }
+    
+    public ServiceResult<Boolean> cludeAllEventTheseEvents(User user, String recurrenceid) {
+        try {
+            jdbcTemplate.update(
+                "UPDATE public.event"
+                + " SET exclude = exclude # B'1'"
+                + " WHERE user_id = ?"
+                + " AND recurrenceid = ?",
+                UUID.fromString(user.getId()),
+                UUID.fromString(recurrenceid)
+            );
+            this.updateEventTotals(user);
+            return new ServiceResult<>("success", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult<>("error", e, false);
         }
     }
 
