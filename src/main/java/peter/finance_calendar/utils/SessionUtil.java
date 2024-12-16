@@ -1,5 +1,6 @@
 package peter.finance_calendar.utils;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 
 import org.springframework.stereotype.Component;
@@ -20,10 +21,10 @@ public class SessionUtil {
             String accessToken = user.getAccessToken();
             String userId = user.getId();
 
-            Calendar todayCal = Calendar.getInstance();
+            LocalDate now = LocalDate.now();
 
-            session.setAttribute(userId + ".year", todayCal.get(Calendar.YEAR));
-            session.setAttribute(userId + ".month", todayCal.get(Calendar.MONTH));
+            session.setAttribute(userId + ".year", now.getYear());
+            session.setAttribute(userId + ".month", now.getMonthValue());
             session.setAttribute(userId + ".access_token", accessToken);
         } catch (Exception e) {
             e.printStackTrace();

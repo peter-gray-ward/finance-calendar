@@ -1,5 +1,6 @@
 package peter.finance_calendar.controllers;
 
+import java.util.Enumeration;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -46,12 +47,27 @@ public class PageController {
             }
 
             String userId = user.getId();
-            Integer year = (Integer) session.getAttribute(userId + ".year");
-            Integer month = (Integer) session.getAttribute(userId + ".month");
+
+            Enumeration<String> e = session.getAttributeNames();
+            while (e.hasMoreElements()) {
+                String attrName = e.nextElement();
+                System.out.println(attrName);
+            }
+
+            Integer year = null;
+            Integer month = null;
+
+            try {
+                year = (Integer) session.getAttribute(userId + ".year");
+                month = (Integer) session.getAttribute(userId + ".month");
+            } catch (Exception ex) {
+                SessionUtil.logout(req, res);
+                return "auth";
+            }
 
             System.out.println("Getting calendar for " + year + ": " + month);
 
-            if (year == null || month == null) {
+            if (year == null || month == null || month == 0) {
                 SessionUtil.logout(req, res);
                 return "auth";
             }
@@ -77,6 +93,7 @@ public class PageController {
 
             return "index";
         } catch (Exception e) {
+            e.printStackTrace();
             return "error"; // Return an error view in case of an exception
         }
     }

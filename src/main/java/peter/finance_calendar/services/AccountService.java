@@ -1,5 +1,6 @@
 package peter.finance_calendar.services;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -84,8 +85,8 @@ public class AccountService {
                     rs.getString("user_id"),
                     rs.getString("name"),
                     rs.getDouble("amount"),
-                    rs.getDate("recurrenceenddate"),
-                    rs.getDate("startdate"),
+                    rs.getObject("recurrenceenddate", LocalDate.class),
+                    rs.getObject("startdate", LocalDate.class),
                     rs.getString("frequency")
                 ),
                 UUID.fromString(user.getId())
@@ -176,8 +177,8 @@ public class AccountService {
                     rs.getString("user_id"),
                     rs.getString("name"),
                     rs.getDouble("amount"),
-                    rs.getDate("recurrenceenddate"),
-                    rs.getDate("startdate"),
+                    rs.getObject("recurrenceenddate", LocalDate.class),
+                    rs.getObject("startdate", LocalDate.class),
                     rs.getString("frequency")
                 ),
                 expenseId

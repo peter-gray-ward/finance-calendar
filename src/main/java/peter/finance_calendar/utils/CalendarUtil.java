@@ -1,9 +1,9 @@
 package peter.finance_calendar.utils;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,51 +19,40 @@ import peter.finance_calendar.models.User;
 public class CalendarUtil {
 
     public List<List<Day>> getWeeks(User user, int month, int year, List<Event> events) {
+        System.out.println("\t\t" + year + ": " + month);
+
         List<List<Day>> weeks = new ArrayList<>();
         String[] DOW = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-    
-        // Set the calendar to the first day of the current month
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month, 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-    
-        // Adjust calendar to the nearest previous Sunday
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-        cal.add(Calendar.DAY_OF_MONTH, -(dayOfWeek - Calendar.SUNDAY));
-    
+
+        // Set the date to the first day of the current month
+        LocalDate cal = LocalDate.of(year, month, 1);
+
+        // Adjust date to the nearest previous Sunday
+        cal = cal.minusDays(cal.getDayOfWeek().getValue() % 7);
+
         // Get today's date for comparison
-        Calendar todayCal = Calendar.getInstance();
-        todayCal.set(Calendar.HOUR_OF_DAY, 0);
-        todayCal.set(Calendar.MINUTE, 0);
-        todayCal.set(Calendar.SECOND, 0);
-        todayCal.set(Calendar.MILLISECOND, 0);
-    
+        LocalDate today = LocalDate.now();
+
         List<Day> currentWeek = new ArrayList<>();
-    
-        while (weeks.size() < 6 || cal.get(Calendar.MONTH) == month) {
-            int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
-            int dayOfWeekIndex = cal.get(Calendar.DAY_OF_WEEK) - 1; // Sunday = 0, Monday = 1, etc.
-    
-            boolean isToday = cal.equals(todayCal);
-            boolean isAfterToday = isToday || cal.after(todayCal);
-    
+
+        while (weeks.size() < 6 || cal.getMonthValue() == month) {
+            int dayOfMonth = cal.getDayOfMonth();
+            int dayOfWeekIndex = cal.getDayOfWeek().getValue() % 7; // Sunday = 0, Monday = 1, etc.
+
+            boolean isToday = cal.isEqual(today);
+            boolean isAfterToday = isToday || cal.isAfter(today);
+
             Day day = new Day();
             day.setDate(dayOfMonth);
             day.setDay(DOW[dayOfWeekIndex]);
-            day.setYear(cal.get(Calendar.YEAR));
-            day.setMonth(cal.get(Calendar.MONTH));
-    
+            day.setYear(cal.getYear());
+            day.setMonth(cal.getMonthValue());
+
             // Check for events on this day
             List<Event> dayEvents = new ArrayList<>();
             for (Event event : events) {
-                Calendar eventCal = Calendar.getInstance();
-                eventCal.setTime(event.getDate());
-                if (cal.get(Calendar.YEAR) == eventCal.get(Calendar.YEAR) &&
-                    cal.get(Calendar.MONTH) == eventCal.get(Calendar.MONTH) &&
-                    cal.get(Calendar.DAY_OF_MONTH) == eventCal.get(Calendar.DAY_OF_MONTH)) {
+                LocalDate eventDate = event.getDate();
+                if (cal.isEqual(eventDate)) {
                     day.hasEvents = true;
                     dayEvents.add(event);
                     day.setTotal(event.getTotal());
@@ -72,28 +61,27 @@ public class CalendarUtil {
             day.setEvents(dayEvents);
             day.setToday(isToday);
             day.setTodayOrLater(isAfterToday);
-    
+
             if (isToday) {
                 day.setTotal(user.getCheckingBalance());
             } else if (!day.hasEvents) {
                 day.setTotal(0.0);
             }
-    
+
             currentWeek.add(day);
-    
+
             // If the week has 7 days, add it to the list of weeks
             if (currentWeek.size() == 7) {
                 weeks.add(currentWeek);
                 currentWeek = new ArrayList<>();
             }
-    
+
             // Move to the next day
-            cal.add(Calendar.DAY_OF_MONTH, 1);
+            cal = cal.plusDays(1);
         }
-    
+
         return weeks;
     }
-    
 
     public List<Event> generateEvents(User user, List<Expense> expenses) {
         List<Event> events = new ArrayList<>();
@@ -101,39 +89,36 @@ public class CalendarUtil {
         for (Expense expense : expenses) {
             String frequency = expense.getFrequency();
 
-            Calendar start = Calendar.getInstance();
-            start.setTime(expense.getStartdate());
+            LocalDate start = expense.getStartdate();
+            LocalDate end = expense.getRecurrenceenddate();
 
-            Calendar end = Calendar.getInstance();
-            end.setTime(expense.getRecurrenceenddate());
-            
             String userId = expense.getUserId();
             String recurrenceid = UUID.randomUUID().toString();
 
-            while (start.before(end) || start.equals(end)) {
+            while (!start.isAfter(end)) {
                 Event event = new Event(
-                    UUID.randomUUID().toString(), 
-                    recurrenceid, 
+                    UUID.randomUUID().toString(),
+                    recurrenceid,
                     expense.getName(),
-                    start.getTime(), 
-                    end.getTime(), 
-                    expense.getAmount(), 
-                    0.0, 
-                    expense.getAmount(), 
+                    start,
+                    end,
+                    expense.getAmount(),
+                    0.0,
+                    expense.getAmount(),
                     false,
                     frequency,
                     userId
                 );
-                
 
                 events.add(event);
 
+                // Increment `start` based on the frequency
                 switch (frequency) {
-                    case "daily" -> start.add(Calendar.DAY_OF_YEAR, 1);
-                    case "weekly" -> start.add(Calendar.WEEK_OF_YEAR, 1);
-                    case "biweekly" -> start.add(Calendar.WEEK_OF_YEAR, 2);
-                    case "monthly" -> start.add(Calendar.MONTH, 1);
-                    case "yearly" -> start.add(Calendar.YEAR, 1);
+                    case "daily" -> start = start.plusDays(1);
+                    case "weekly" -> start = start.plusWeeks(1);
+                    case "biweekly" -> start = start.plusWeeks(2);
+                    case "monthly" -> start = start.plusMonths(1);
+                    case "yearly" -> start = start.plusYears(1);
                 }
             }
         }
@@ -143,29 +128,26 @@ public class CalendarUtil {
         return events;
     }
 
-    private boolean sameDay(Calendar cal1, Calendar cal2) {
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
-            && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
-            && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
- 
+    public boolean sameDay(LocalDate date1, LocalDate date2) {
+        return date1.isEqual(date2);
     }
-    
+
     public List<Event> calculateTotals(User user, List<Event> events) {
         double total = user.getCheckingBalance();
-        Calendar today = Calendar.getInstance();
+        LocalDate today = LocalDate.now();
+
         events = events.stream()
-               .sorted(Comparator.comparing(Event::getDate))
-               .collect(Collectors.toList());
+                .sorted(Comparator.comparing(event -> event.getDate()))
+                .collect(Collectors.toList());
+
         boolean started = false;
         for (Event event : events) {
-            Date date = event.getDate();
-            Calendar eventDate = Calendar.getInstance();
-            eventDate.setTime(date);
-            if (started == false && sameDay(eventDate, today)) {
+            LocalDate eventDate = event.getDate();
+            if (!started && sameDay(eventDate, today)) {
                 started = true;
             }
             if (started) {
-                if (event.getExclude() == false) {
+                if (!event.getExclude()) {
                     total += event.getAmount();
                 }
                 event.setTotal(total);

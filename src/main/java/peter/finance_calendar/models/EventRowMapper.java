@@ -2,6 +2,7 @@ package peter.finance_calendar.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -12,8 +13,8 @@ public class EventRowMapper implements RowMapper<Event> {
             rs.getString("id"),
             rs.getString("recurrenceid"),
             rs.getString("summary"),
-            rs.getDate("date"),
-            rs.getDate("recurrenceenddate"),
+            rs.getObject("date", LocalDate.class),
+            rs.getObject("recurrenceenddate", LocalDate.class),
             rs.getDouble("amount"),
             rs.getDouble("total"),
             rs.getDouble("balance"),

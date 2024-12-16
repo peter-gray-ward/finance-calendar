@@ -1,19 +1,19 @@
 package peter.finance_calendar.models;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Expense {
     private String id;
     private String user_id;
     private String name;
     private Double amount;
-    private Date recurrenceenddate;
-    private Date startdate;
+    private LocalDate recurrenceenddate;
+    private LocalDate startdate;
     private String frequency;
 
     public Expense() {}
 
-    public Expense(String id, String user_id, String name, Double amount, Date recurrenceenddate, Date startdate, String frequency) {
+    public Expense(String id, String user_id, String name, Double amount, LocalDate recurrenceenddate, LocalDate startdate, String frequency) {
         this.id = id;
         this.user_id = user_id;
         this.name = name;
@@ -40,11 +40,11 @@ public class Expense {
         return amount;
     }
 
-    public Date getRecurrenceenddate() {
+    public LocalDate getRecurrenceenddate() {
         return recurrenceenddate;
     }
 
-    public Date getStartdate() {
+    public LocalDate getStartdate() {
         return startdate;
     }
 
@@ -69,11 +69,11 @@ public class Expense {
         this.amount = amount;
     }
 
-    public void setRecurrenceenddate(Date recurrenceenddate) {
+    public void setRecurrenceenddate(LocalDate recurrenceenddate) {
         this.recurrenceenddate = recurrenceenddate;
     }
 
-    public void setStartdate(Date startdate) {
+    public void setStartdate(LocalDate startdate) {
         this.startdate = startdate;
     }
 

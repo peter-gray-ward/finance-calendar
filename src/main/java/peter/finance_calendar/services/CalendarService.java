@@ -3,8 +3,7 @@ package peter.finance_calendar.services;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Date;
-import java.time.ZoneId;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,8 +67,8 @@ public class CalendarService {
                     rs.getString("user_id"),
                     rs.getString("name"),
                     rs.getDouble("amount"),
-                    rs.getDate("recurrenceenddate"),
-                    rs.getDate("startdate"),
+                    rs.getObject("recurrenceenddate", LocalDate.class),
+                    rs.getObject("startdate", LocalDate.class),
                     rs.getString("frequency")
                 ),
                 UUID.fromString(user.getId())
@@ -95,8 +94,8 @@ public class CalendarService {
                     ps.setObject(1, UUID.fromString(event.getId()));
                     ps.setObject(2, UUID.fromString(event.getRecurrenceid()));
                     ps.setString(3, event.getSummary());
-                    ps.setDate(4, Date.valueOf(event.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
-                    ps.setDate(5, Date.valueOf(event.getRecurrenceenddate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                    ps.setObject(4, event.getDate());
+                    ps.setObject(5, event.getRecurrenceenddate());
                     ps.setDouble(6, event.getAmount());
                     ps.setDouble(7, event.getTotal());
                     ps.setDouble(8, event.getBalance());
@@ -119,9 +118,10 @@ public class CalendarService {
                 + " FROM public.event"
                 + " WHERE user_id = ?"
                 + " AND ("
-                + "     date >= DATE_TRUNC('month', DATE '" + year + "-" + (month + 1)+ "-01') - INTERVAL '1 month'"
-                + "     AND date < DATE_TRUNC('month', DATE '" + year + "-" + (month + 1) + "-01') + INTERVAL '2 months'"
+                + "     date >= DATE_TRUNC('month', DATE '" + year + "-" + month + "-01') - INTERVAL '1 month'"
+                + "     AND date < DATE_TRUNC('month', DATE '" + year + "-" + month + "-01') + INTERVAL '2 months'"
                 + " )";
+            System.out.println("\n" + sql + "\n");
             List<Event> events = jdbcTemplate.query(
                 sql,
                 new EventRowMapper(),
@@ -258,5 +258,122 @@ public class CalendarService {
             return new ServiceResult<>("error", e, false);
         }
     }
+
+    public ServiceResult<Event> updateEvent(User user, Event event) {
+        try {
+            
+            jdbcTemplate.update(
+                "UPDATE public.event"
+                + " SET summary = ?, date = ?, recurrenceenddate = ?, amount = ?, total = ?, balance = ?, frequency = ?"
+                + " WHERE user_id = ?"
+                + " AND id = ?",
+                event.getSummary(),
+                event.getDate(),
+                event.getRecurrenceenddate(),
+                event.getAmount(),
+                event.getTotal(),
+                event.getBalance(),
+                event.getFrequency(),
+                UUID.fromString(user.getId()),
+                UUID.fromString(event.getId())
+            );
+
+            return new ServiceResult<>("success", event);
+        } catch (Exception e) {
+            return new ServiceResult<>("error", null);
+        }
+    }
+
+
+    public ServiceResult<Event> updateAllTheseEvents(User user, Event event) {
+        try {
+            // Fetch current event from the database
+            Event currentEvent = jdbcTemplate.queryForObject(
+                "SELECT * FROM public.event WHERE id = ?",
+                new EventRowMapper(),
+                UUID.fromString(event.getId())
+            );
+
+            LocalDate currentDate = currentEvent.getDate();
+            LocalDate newDate = event.getDate();
+            LocalDate currentRecurrenceEndDate = currentEvent.getRecurrenceenddate();
+            LocalDate newRecurrenceEndDate = event.getRecurrenceenddate();
+
+            // Check if dates are different and update accordingly
+            if (!currentDate.isEqual(newDate)) {
+                jdbcTemplate.update(
+                    "WITH diff AS ("
+                    + "    SELECT (CAST(? AS TIMESTAMP) - CAST(? AS TIMESTAMP)) AS date_diff"
+                    + ") "
+                    + "UPDATE public.event "
+                    + "SET summary = ?, "
+                    + "    date = date + diff.date_diff, "
+                    + "    recurrenceenddate = recurrenceenddate + diff.date_diff, "
+                    + "    amount = ?, total = ?, balance = ?, frequency = ? "
+                    + "FROM diff "
+                    + "WHERE user_id = ? AND recurrenceid = ?",
+                    newDate,                // New date
+                    currentDate,            // Current date
+                    event.getSummary(),
+                    event.getAmount(),
+                    event.getTotal(),
+                    event.getBalance(),
+                    event.getFrequency(),
+                    UUID.fromString(user.getId()),
+                    UUID.fromString(event.getRecurrenceid())
+                );
+            }
+
+            // Handle changes to recurrence end date
+            if (!currentRecurrenceEndDate.isEqual(newRecurrenceEndDate)) {
+                if (newRecurrenceEndDate.isBefore(currentRecurrenceEndDate)) {
+                    jdbcTemplate.update(
+                        "DELETE FROM public.event "
+                        + "WHERE user_id = ? "
+                        + "AND recurrenceid = ? "
+                        + "AND date > ?",
+                        UUID.fromString(user.getId()),
+                        UUID.fromString(event.getRecurrenceid()),
+                        newRecurrenceEndDate
+                    );
+                } else if (newRecurrenceEndDate.isAfter(currentRecurrenceEndDate)) {
+                    LocalDate latestDate = currentRecurrenceEndDate;
+                    while (latestDate.isBefore(newRecurrenceEndDate)) {
+                        String sql = "INSERT INTO public.event "
+                            + "(id, recurrenceid, summary, date, recurrenceenddate, amount, total, balance, exclude, frequency, user_id) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS bit), ?, ?)";
+                        jdbcTemplate.update(
+                            sql,
+                            UUID.randomUUID(),
+                            UUID.fromString(event.getRecurrenceid()),
+                            event.getSummary(),
+                            latestDate,
+                            newRecurrenceEndDate,
+                            event.getAmount(),
+                            event.getTotal(),
+                            event.getBalance(),
+                            event.getExclude(),
+                            event.getFrequency(),
+                            UUID.fromString(user.getId())
+                        );
+
+                        // Increment `latestDate` based on the frequency
+                        switch (event.getFrequency()) {
+                            case "daily" -> latestDate = latestDate.plusDays(1);
+                            case "weekly" -> latestDate = latestDate.plusWeeks(1);
+                            case "biweekly" -> latestDate = latestDate.plusWeeks(2);
+                            case "monthly" -> latestDate = latestDate.plusMonths(1);
+                            case "yearly" -> latestDate = latestDate.plusYears(1);
+                        }
+                    }
+                }
+            }
+
+            return new ServiceResult<>("success", event);
+        } catch (Exception e) {
+            return new ServiceResult<>("error", null);
+        }
+    }
+
 
 }

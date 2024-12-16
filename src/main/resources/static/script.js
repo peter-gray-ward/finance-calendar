@@ -182,22 +182,24 @@ var events = {
   
   '#save-this-event:click': (e) => {
     var event = SerializeEvent()
-    fc.api('PUT', Api.SAVE_THIS_EVENT + '/' + event.id, event).then(res => {
+    fc.api('PUT', Api.SAVE_THIS_EVENT, event).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
+        ScrollToFirstOfMonth()
       }
     })
   },
 
   '#save-this-and-future-events:click': (e) => {
     var event = SerializeEvent()
-    fc.api('PUT', Api.SAVE_THIS_AND_FUTURE_EVENTS + '/' + event.recurrenceid, event).then(res => {
+    fc.api('PUT', Api.SAVE_THIS_AND_FUTURE_EVENTS, event).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
+        ScrollToFirstOfMonth()
       }
     })
   },
@@ -473,7 +475,7 @@ var events = {
     fc.api('POST', Api.CHANGE_MONTH + '/prev').then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template;
-        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
         ScrollToFirstOfMonth()
@@ -484,7 +486,7 @@ var events = {
     fc.api('POST', Api.CHANGE_MONTH + '/this').then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template;
-        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
         ScrollToFirstOfMonth()
@@ -495,7 +497,7 @@ var events = {
     fc.api('POST', Api.CHANGE_MONTH + '/next').then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template;
-        document.getElementById('month-name').innerHTML = Months[res.data.month]
+        document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
         ADD_EVENTS()
         ScrollToFirstOfMonth()

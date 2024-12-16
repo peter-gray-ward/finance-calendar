@@ -1,5 +1,6 @@
 package peter.finance_calendar.models;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class AccountInfo {
@@ -10,8 +11,10 @@ public class AccountInfo {
     private int year = 2024;
 
     public AccountInfo(User user) {
+        LocalDate now = LocalDate.now();
         this.user = user;
-
+        this.month = now.getMonthValue();
+        this.year = now.getYear();
         
     }
 

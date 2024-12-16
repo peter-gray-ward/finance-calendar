@@ -1,6 +1,8 @@
 package peter.finance_calendar.controllers;
 
+import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,16 +24,19 @@ import peter.finance_calendar.models.SyncData;
 import peter.finance_calendar.models.User;
 import peter.finance_calendar.services.AccountService;
 import peter.finance_calendar.services.CalendarService;
+import peter.finance_calendar.utils.CalendarUtil;
 
 @RestController
 public class CalendarController {
 
     private AccountService accountService;
     private CalendarService calendarService;
+    private CalendarUtil calendarUtil;
 
-    public CalendarController(AccountService accountService, CalendarService calendarService) {
+    public CalendarController(AccountService accountService, CalendarService calendarService, CalendarUtil calendarUtil) {
         this.accountService = accountService;
         this.calendarService = calendarService;
+        this.calendarUtil = calendarUtil;
     }
     
     @GetMapping("/sync-data")
@@ -74,42 +80,55 @@ public class CalendarController {
     public ResponseEntity<ControllerResponse<HashMap<String, Integer>>> changeMonth(@PathVariable String which, HttpServletRequest req, HttpSession session) {
         User user = accountService.getUser(req.getCookies());
         String userId = user.getId();
+
+        // Retrieve year and month from session or use the current date as default
         Integer year = (Integer) session.getAttribute(userId + ".year");
         Integer month = (Integer) session.getAttribute(userId + ".month");
 
-        Calendar sessionDate = Calendar.getInstance();
-        sessionDate.set(Calendar.YEAR, year);
-        sessionDate.set(Calendar.MONTH, month);
+        LocalDate sessionDate;
 
-        switch (which) {
-            case "prev":
-                sessionDate.add(Calendar.MONTH, -1);
-            break;
-            case "this":
-                Calendar today = Calendar.getInstance();
-                sessionDate.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                sessionDate.set(Calendar.MONTH, today.get(Calendar.MONTH));
-            break;
-            case "next":
-                sessionDate.add(Calendar.MONTH, 1);
-            break;
+        if (year != null && month != null) {
+            sessionDate = LocalDate.of(year, month, 1);
+        } else {
+            sessionDate = LocalDate.now().withDayOfMonth(1);
         }
 
-        year = (Integer) sessionDate.get(Calendar.YEAR);
-        month = (Integer) sessionDate.get(Calendar.MONTH);
+        // Update the date based on the 'which' parameter
+        switch (which) {
+            case "prev":
+                sessionDate = sessionDate.minusMonths(1);
+                break;
+            case "this":
+                sessionDate = LocalDate.now().withDayOfMonth(1);
+                break;
+            case "next":
+                sessionDate = sessionDate.plusMonths(1);
+                break;
+        }
 
+        // Extract updated year and month
+        year = sessionDate.getYear();
+        month = sessionDate.getMonthValue();
+
+        System.out.println(year + " : " + month);
+
+        // Store updated year and month in the session
         session.setAttribute(userId + ".year", year);
         session.setAttribute(userId + ".month", month);
 
+        // Generate calendar fragment
         String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+
+        // Prepare response data
         HashMap<String, Integer> data = new HashMap<>();
         data.put("year", year);
         data.put("month", month);
+
         return new ResponseEntity<>(new ControllerResponse<>("success", data, calendarFragment), HttpStatus.OK);
     }
 
     @GetMapping("/get-event/{eventId}")
-    public ResponseEntity<ControllerResponse<?>> getEvent(HttpServletRequest req, @PathVariable String eventId) {
+    public ResponseEntity<ControllerResponse<Event>> getEvent(HttpServletRequest req, @PathVariable String eventId) {
         User user = accountService.getUser(req.getCookies());
         ServiceResult eventResult = calendarService.getEvent(user, eventId);
         if (eventResult.status.equals("success")) {
@@ -144,5 +163,32 @@ public class CalendarController {
             return new ResponseEntity<>(new ControllerResponse<>("success", true, calendarFragment), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ControllerResponse<>(eventResult.status, false), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PutMapping("/save-this-event")
+    public ResponseEntity<ControllerResponse<Event>> updateEvent(HttpServletRequest req, HttpSession session, @RequestBody Event event) {
+        System.out.println(event.getDate());
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<Event> updatedEvent = calendarService.updateEvent(user, event);
+        if (updatedEvent.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", event, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(updatedEvent.status, null), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PutMapping("/save-all-these-events")
+    public ResponseEntity<ControllerResponse<Event>> updateAllTheseEvents(HttpServletRequest req, HttpSession session, @RequestBody Event event) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<Event> updatedEvent = calendarService.updateAllTheseEvents(user, event);
+        if (updatedEvent.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", event, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(updatedEvent.status, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

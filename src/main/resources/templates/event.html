@@ -7,18 +7,18 @@
         <div class="upper-div-collection">
             <div id="summary-div">
                 <label>Summary</label>
-                <div contenteditable class="this focusable" style="font-size: 1.75rem;" th:text="${event.summary}"></div>
+                <div th:name="summary" contenteditable class="this focusable" style="font-size: 1.75rem;" th:text="${event.summary}"></div>
             </div>
             <div id="amount-div">
                 <label>Amount</label>
-                <input class="this focusable" type="number" id="event-amount" name="amount" th:value="${event.amount}" />
+                <input class="this focusable" type="number" id="event-amount" th:name="amount" th:value="${event.amount}" />
             </div>
         </div>
         <div id="time-container">
             <div id="frequency-container">
                 <label>Frequency</label>
                 <div class="td select-container focusable">
-                    <input name="frequency"
+                    <input th:name="frequency"
                             th:value="${event.frequency}"
                             class="select focusable"
                             type="text"
@@ -34,11 +34,11 @@
             <div id="date-container">
                 <div>
                     <label style="color: #053147">Date</label>
-                    <input name="date" class="td focusable" type="date" th:value="${event.date != null ? event.date : #dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                    <input th:name="date" class="td focusable" type="date" th:value="${event.date != null ? event.date : #dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
                 </div>
                 <div>
                     <label>End Date</label>
-                    <input name="recurrenceenddate" class="td focusable" type="date" th:value="${event.date != null ? event.date : #dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                    <input th:name="recurrenceenddate" class="td focusable" type="date" th:value="${event.date != null ? event.date : #dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
                 </div>
             </div>
         </div>

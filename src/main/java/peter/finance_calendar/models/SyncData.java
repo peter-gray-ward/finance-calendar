@@ -22,7 +22,7 @@ class Api {
     public String CHANGE_MONTH = "change-month";
     public String GET_EVENT = "get-event";
     public String SAVE_THIS_EVENT = "save-this-event";
-    public String SAVE_THIS_AND_FUTURE_EVENTS = "save-this-and-future-events";
+    public String SAVE_THIS_AND_FUTURE_EVENTS = "save-all-these-events";
     public String SAVE_CHECKING_BALANCE = "save-checking-balance";
     public String ADD_DEBT = "add-debt";
     public String UPDATE_DEBT = "update-debt";
