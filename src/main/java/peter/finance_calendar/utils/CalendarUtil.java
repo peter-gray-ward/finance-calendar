@@ -70,7 +70,6 @@ public class CalendarUtil {
                 if (c.equals(cal)) {
                     day.hasEvents = true;
                     dayEvents.add(event);
-                    System.out.println(event.getTotal());
                     day.setTotal(event.getTotal());
                 }
             }
@@ -144,6 +143,13 @@ public class CalendarUtil {
         return events;
     }
 
+    private boolean sameDay(Calendar cal1, Calendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+            && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
+            && cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
+ 
+    }
+    
     public List<Event> calculateTotals(User user, List<Event> events) {
         double total = user.getCheckingBalance();
         Calendar today = Calendar.getInstance();
@@ -155,14 +161,13 @@ public class CalendarUtil {
             Date date = event.getDate();
             Calendar eventDate = Calendar.getInstance();
             eventDate.setTime(date);
-            if (eventDate.after(today)) {
+            if (started == false && sameDay(eventDate, today)) {
                 started = true;
             }
             if (started) {
                 if (event.getExclude() == false) {
                     total += event.getAmount();
                 }
-                System.out.println(total);
                 event.setTotal(total);
             } else {
                 event.setTotal(0.0);

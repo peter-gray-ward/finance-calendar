@@ -85,7 +85,6 @@ public class AuthService {
             boolean passwordMatches = false;
 
             try {
-                System.out.println("\n verifying password " + user.getPassword() + " \n");
                 passwordMatches = PasswordUtil.checkPassword(password, user.getPassword());
             } catch (Exception e) {
                 error = "Invalid password";

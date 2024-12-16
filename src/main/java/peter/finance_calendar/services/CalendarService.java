@@ -122,7 +122,6 @@ public class CalendarService {
                 + "     date >= DATE_TRUNC('month', DATE '" + year + "-" + (month + 1)+ "-01') - INTERVAL '1 month'"
                 + "     AND date < DATE_TRUNC('month', DATE '" + year + "-" + (month + 1) + "-01') + INTERVAL '2 months'"
                 + " )";
-            System.out.println(sql);
             List<Event> events = jdbcTemplate.query(
                 sql,
                 new EventRowMapper(),
@@ -197,7 +196,7 @@ public class CalendarService {
         }
     }
 
-    private void updateEventTotals(User user) {
+    public void updateEventTotals(User user) {
         try {
             List<Event> events = jdbcTemplate.query(
                 "SELECT *"

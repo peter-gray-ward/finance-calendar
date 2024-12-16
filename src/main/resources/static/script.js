@@ -589,6 +589,7 @@ function ChangeCheckingBalance(e) {
     var value = $('#checking-balance').val()
     try {
       value = Number(value).toFixed(2)
+      console.log(value)
       fc.api('POST', Api.SAVE_CHECKING_BALANCE + '/' + value).then(res => {
         if (res.status == 'success') {
           document.getElementById('calendar').outerHTML = res.template
@@ -600,7 +601,7 @@ function ChangeCheckingBalance(e) {
       console.error(error)
     }
     
-  }, 800)
+  }, 300)
 }
 
 events['button.option:click'] = events['button.option:click'].bind(events)

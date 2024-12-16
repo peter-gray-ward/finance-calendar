@@ -35,6 +35,7 @@ public class AccountController {
         if (updatedUser.exception != null) { 
             return new ResponseEntity<>(new ControllerResponse<>(updatedUser.status, updatedUser.exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        calendarService.updateEventTotals(user);
         int year = (int) session.getAttribute(user.getId() + ".year");
         int month = (int) session.getAttribute(user.getId() + ".month");
         String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
