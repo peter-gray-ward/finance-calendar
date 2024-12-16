@@ -13,7 +13,16 @@ public class Day {
 	private Boolean today;
 	private Double total;
 
-	public Day() {}
+	public Day() {
+		date = 0;
+		day = "";
+		events = null;
+		year = null;
+		month = null;
+		todayOrLater = false;
+		today = false;
+		total = 0.0;
+	}
 
 	public Day(Integer date, String day, List<Event> events, Integer year, Integer month) {
 		this.date = date;
