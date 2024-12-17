@@ -55,9 +55,9 @@ public class AccountController {
     @DeleteMapping("/delete-expense/{expenseId}")
     public ResponseEntity<ControllerResponse<?>> deleteExpense(HttpServletRequest req, @PathVariable String expenseId) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult<Expense> expenseDeleted = accountService.deleteExpense(user, expenseId);
+        ServiceResult<?> expenseDeleted = accountService.deleteExpense(user, expenseId);
         if (expenseDeleted.status.equals("success") == false) {
-            return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status, expenseDeleted.data), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(new ControllerResponse<>(expenseDeleted.status, expenseDeleted.exception), HttpStatus.OK);
     }
@@ -65,11 +65,11 @@ public class AccountController {
     @PostMapping("/update-expense")
     public ResponseEntity<ControllerResponse<Boolean>> updateExpense(HttpServletRequest req, @RequestBody Expense expense) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult<Expense> expenseUpdated = accountService.updateExpense(user, expense);
+        ServiceResult<?> expenseUpdated = accountService.updateExpense(user, expense);
         if (expenseUpdated.status.equals("success") == false) {
-            return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status, false), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status, true), HttpStatus.OK);
+        return new ResponseEntity<>(new ControllerResponse<>(expenseUpdated.status), HttpStatus.OK);
     }
 
     

@@ -2,11 +2,11 @@ package peter.finance_calendar.controllers;
 
 import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -167,7 +167,6 @@ public class CalendarController {
 
     @PutMapping("/save-this-event")
     public ResponseEntity<ControllerResponse<Event>> updateEvent(HttpServletRequest req, HttpSession session, @RequestBody Event event) {
-        System.out.println(event.getDate());
         User user = accountService.getUser(req.getCookies());
         ServiceResult<Event> updatedEvent = calendarService.updateEvent(user, event);
         if (updatedEvent.status.equals("success")) {
@@ -188,6 +187,32 @@ public class CalendarController {
             int month = (int) session.getAttribute(user.getId() + ".month");
             String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
             return new ResponseEntity<>(new ControllerResponse<>("success", event, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(updatedEvent.status, null), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @DeleteMapping("/delete-this-event/{eventId}")
+    public ResponseEntity<ControllerResponse<?>> deleteEvent(HttpServletRequest req, HttpSession session, @PathVariable String eventId) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<?> updatedEvent = calendarService.deleteEvent(user, eventId);
+        if (updatedEvent.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", null, calendarFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(updatedEvent.status, null), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @DeleteMapping("/delete-all-these-events/{eventRecurrenceid}")
+    public ResponseEntity<ControllerResponse<?>> deleteAllTheseEvents(HttpServletRequest req, HttpSession session, @PathVariable String eventRecurrenceid) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<?> updatedEvent = calendarService.deleteAllTheseEvents(user, eventRecurrenceid);
+        if (updatedEvent.status.equals("success")) {
+            int year = (int) session.getAttribute(user.getId() + ".year");
+            int month = (int) session.getAttribute(user.getId() + ".month");
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", null, calendarFragment), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ControllerResponse<>(updatedEvent.status, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }

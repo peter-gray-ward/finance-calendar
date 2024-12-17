@@ -136,7 +136,7 @@ public class AccountService {
         return null;
     }
 
-    public ServiceResult updateCheckingBalance(User user, Double checkingBalance) {
+    public ServiceResult<User> updateCheckingBalance(User user, Double checkingBalance) {
         try {
             jdbcTemplate.update(
                 "UPDATE public.user"
@@ -156,7 +156,7 @@ public class AccountService {
     }
 
     
-    public ServiceResult addExpense(User user) {
+    public ServiceResult<Expense> addExpense(User user) {
         try {
             UUID expenseId = UUID.randomUUID();
             jdbcTemplate.update(
@@ -189,7 +189,7 @@ public class AccountService {
             return new ServiceResult("error", e, e.getMessage());
         }
     }
-    public ServiceResult deleteExpense(User user, String expenseId) {
+    public ServiceResult<?> deleteExpense(User user, String expenseId) {
         try {
             jdbcTemplate.update(
                 "DELETE FROM public.expense"
@@ -204,7 +204,7 @@ public class AccountService {
         }
     }
 
-    public ServiceResult updateExpense(User user, Expense expense) {
+    public ServiceResult<?> updateExpense(User user, Expense expense) {
         try {
             jdbcTemplate.update(
                 "UPDATE public.expense"

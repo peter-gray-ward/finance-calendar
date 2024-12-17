@@ -375,5 +375,33 @@ public class CalendarService {
         }
     }
 
+    public ServiceResult<?> deleteEvent(User user, String id) {
+        try {
+            jdbcTemplate.update(
+                "DELETE from public.event"
+                + " WHERE user_id = ?"
+                + " AND id = ?",
+                UUID.fromString(user.getId()),
+                UUID.fromString(id)
+            );
+            return new ServiceResult<>("success");
+        } catch (Exception e) {
+            return new ServiceResult<>("error", null);
+        }
+    }
 
+    public ServiceResult<Event> deleteAllTheseEvents(User user, String recurrenceid) {
+        try {
+            jdbcTemplate.update(
+                "DELETE from public.event"
+                + " WHERE user_id = ?"
+                + " AND recurrenceid = ?",
+                UUID.fromString(user.getId()),
+                UUID.fromString(recurrenceid)
+            );
+            return new ServiceResult<>("success");
+        } catch (Exception e) {
+            return new ServiceResult<>("error", null);
+        }
+    }
 }

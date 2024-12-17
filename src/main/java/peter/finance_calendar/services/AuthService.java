@@ -26,7 +26,7 @@ public class AuthService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public ServiceResult handleRegistration(String name, String password) {
+    public ServiceResult<User> handleRegistration(String name, String password) {
         String error = null;
 
         if (name == null || name.isEmpty()) {
@@ -72,7 +72,7 @@ public class AuthService {
         return new ServiceResult(error);
     }
 
-    public ServiceResult handleLogin(String name, String password) {
+    public ServiceResult<User> handleLogin(String name, String password) {
         String error = null;
 
         try {
