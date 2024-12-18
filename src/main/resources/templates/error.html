@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        // Get the canvas element and its context
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set canvas size to full screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Initial properties for the circle
+        let x = 50;
+        let y = canvas.height / 2;
+        const radius = 30;
+        let dx = 2;  // Horizontal speed of the circle
+
+        // Initial properties for the error message
+        let errorMessage = /*[[${errorMessage}]]*/ "Something went wrong!";  // Thymeleaf variable
+
+        // Position and speed for the error message animation
+        let messageX = canvas.width / 2;
+        let messageY = canvas.height / 4;
+        let messageSpeed = 3;
+        let messageOpacity = 0;
+
+        // Function to draw the circle
+        function drawCircle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+
+            // Draw the circle
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#3498db"; // Fill color for the circle
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw the error message with fading effect
+            ctx.font = "40px Arial";
+            ctx.fillStyle = "rgba(255, 69, 0, " + messageOpacity + ")"; // Use fading orange color
+            ctx.textAlign = "center";
+            ctx.fillText(errorMessage, messageX, messageY);
+
+            // Increase the opacity of the message for fade-in effect
+            if (messageOpacity < 1) {
+                messageOpacity += 0.01; // Fade in gradually
+            }
+        }
+
+        // Function to update the position of the circle and animate everything
+        function animate() {
+            drawCircle();
+
+            // Update the circle's position
+            x += dx;
+
+            // Bounce the circle off the walls of the canvas
+            if (x + radius > canvas.width || x - radius < 0) {
+                dx = -dx; // Change direction if the circle hits the edges
+            }
+
+            // Animate the error message to move vertically with a little bounce
+            messageY += messageSpeed;
+            if (messageY > canvas.height / 2 + 50 || messageY < canvas.height / 4) {
+                messageSpeed = -messageSpeed; // Reverse the direction
+            }
+
+            // Repeat the animation
+            requestAnimationFrame(animate);
+        }
+
+        // Start the animation
+        animate();
+    </script>
+</body>
+</html>

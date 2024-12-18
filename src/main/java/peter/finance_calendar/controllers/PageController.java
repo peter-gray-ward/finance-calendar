@@ -24,15 +24,15 @@ import peter.finance_calendar.utils.SessionUtil;
 @Controller
 public class PageController {
 
-   private AccountService accountService;
-   private CalendarService calendarService;
-   private CalendarUtil calendarUtil;
+    private AccountService accountService;
+    private CalendarService calendarService;
+    private CalendarUtil calendarUtil;
 
-   public PageController(AccountService accountService, CalendarService calendarService, CalendarUtil calendarUtil) {
+    public PageController(AccountService accountService, CalendarService calendarService, CalendarUtil calendarUtil) {
         this.accountService = accountService;
         this.calendarService = calendarService;
         this.calendarUtil = calendarUtil;
-   }
+    }
 
     @GetMapping("/")
     public String home(HttpServletRequest req, HttpServletResponse res, HttpSession session, Model model) {
