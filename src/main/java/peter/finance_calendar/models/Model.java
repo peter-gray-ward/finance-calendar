@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 public class Model {
 	public String view() {

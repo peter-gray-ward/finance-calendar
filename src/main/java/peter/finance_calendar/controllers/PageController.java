@@ -65,8 +65,6 @@ public class PageController {
                 return "auth";
             }
 
-            System.out.println("Getting calendar for " + year + ": " + month);
-
             if (year == null || month == null || month == 0) {
                 SessionUtil.logout(req, res);
                 return "auth";

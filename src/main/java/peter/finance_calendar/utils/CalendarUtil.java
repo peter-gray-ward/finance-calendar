@@ -1,7 +1,6 @@
 package peter.finance_calendar.utils;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -128,13 +127,9 @@ public class CalendarUtil {
         return events;
     }
 
-    public boolean sameDay(LocalDate date1, LocalDate date2) {
-        return date1.isEqual(date2);
-    }
-
     public List<Event> calculateTotals(User user, List<Event> events) {
         double total = user.getCheckingBalance();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now().atStartOfDay().toLocalDate();
 
         events = events.stream()
                 .sorted(Comparator.comparing(event -> event.getDate()))
@@ -142,8 +137,8 @@ public class CalendarUtil {
 
         boolean started = false;
         for (Event event : events) {
-            LocalDate eventDate = event.getDate();
-            if (!started && sameDay(eventDate, today)) {
+            LocalDate eventDate = event.getDate().atStartOfDay().toLocalDate();
+            if ((!started && eventDate.isEqual(today)) || (!started && eventDate.isAfter(today))) {
                 started = true;
             }
             if (started) {
