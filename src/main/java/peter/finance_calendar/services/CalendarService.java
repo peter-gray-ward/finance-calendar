@@ -195,6 +195,31 @@ public class CalendarService {
         }
     }
 
+    public ServiceResult<Event> addEvent(User user, int year, int month, int dayOfMonth) {
+        try {
+            UUID eventId = UUID.randomUUID();
+            UUID recurrenceId = UUID.randomUUID();
+            LocalDate date = LocalDate.of(year, month, dayOfMonth);
+            jdbcTemplate.update(
+                "INSERT INTO public.event" +
+                " (id, recurrenceid, summary, date, recurrenceenddate, amount, total, balance, exclude, frequency, user_id)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS bit), ?, ?)",
+                eventId, recurrenceId, "", date, date, 0.0, 0.0, 0.0, "0", "monthly", UUID.fromString(user.getId())
+            );
+            Event event = jdbcTemplate.queryForObject(
+                "SELECT *"
+                + " FROM public.event"
+                + " WHERE id = ?",
+                new EventRowMapper(),
+                eventId
+            );
+            return new ServiceResult("success", null, event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ServiceResult<>("error", e);
+        }
+    }
+   
     public void updateEventTotals(User user) {
         try {
             List<Event> events = jdbcTemplate.query(
@@ -276,7 +301,7 @@ public class CalendarService {
                 UUID.fromString(user.getId()),
                 UUID.fromString(event.getId())
             );
-
+            this.updateEventTotals(user);
             return new ServiceResult<>("success", event);
         } catch (Exception e) {
             return new ServiceResult<>("error", null);

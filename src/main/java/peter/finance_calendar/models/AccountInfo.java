@@ -3,7 +3,7 @@ package peter.finance_calendar.models;
 import java.time.LocalDate;
 import java.util.List;
 
-public class AccountInfo {
+public final class AccountInfo {
     private User user;
     private List<Expense> expenses;
     private List<Debt> debts;

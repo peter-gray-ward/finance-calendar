@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-public class ControllerResponse<T> {
+public final class ControllerResponse<T> {
     String status;
     String template;
     T data;

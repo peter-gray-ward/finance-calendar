@@ -2,7 +2,7 @@ package peter.finance_calendar.models;
 
 import java.time.LocalDate;
 
-public class Event {
+public final class Event {
 	private String id;
 	private String recurrenceid;
 	private String summary;

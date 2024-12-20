@@ -130,7 +130,19 @@ public class CalendarController {
     @GetMapping("/get-event/{eventId}")
     public ResponseEntity<ControllerResponse<Event>> getEvent(HttpServletRequest req, @PathVariable String eventId) {
         User user = accountService.getUser(req.getCookies());
-        ServiceResult eventResult = calendarService.getEvent(user, eventId);
+        ServiceResult<Event> eventResult = calendarService.getEvent(user, eventId);
+        if (eventResult.status.equals("success")) {
+            Event event = (Event) eventResult.data;
+            String eventFragment = calendarService.generateEventFragment(event);
+            return new ResponseEntity<>(new ControllerResponse<>("success", event, eventFragment), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ControllerResponse<>(eventResult.status), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/add-event/{year}/{month}/{date}")
+    public ResponseEntity<ControllerResponse<Event>> addEvent(HttpServletRequest req, @PathVariable Integer year, @PathVariable Integer month, @PathVariable Integer date) {
+        User user = accountService.getUser(req.getCookies());
+        ServiceResult<Event> eventResult = calendarService.addEvent(user, year, month, date);
         if (eventResult.status.equals("success")) {
             Event event = (Event) eventResult.data;
             String eventFragment = calendarService.generateEventFragment(event);

@@ -2,7 +2,7 @@ package peter.finance_calendar.models;
 
 import java.util.List;
 
-public class Day {
+public final class Day {
 	private Integer date;
 	private String day;
 	private List<Event> events;

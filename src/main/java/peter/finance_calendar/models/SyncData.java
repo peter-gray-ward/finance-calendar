@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-class Page {
+final class Page {
     public int CALENDAR = 1;
     public int DAY = 2;
     public int PREVIOUSMONTH = 3;
@@ -14,7 +14,7 @@ class Page {
 
 }
 
-class Api {
+final class Api {
     public String ADD_EXPENSE = "add-expense";
     public String DELETE_EXPENSE = "delete-expense";
     public String UPDATE_EXPENSE = "update-expense";
@@ -37,7 +37,7 @@ class Api {
 
 }
 
-class Frequency {
+final class Frequency {
     public String DAILY = "daily";
     public String WEEKLY = "weekly";
     public String BIWEEKLY = "biweekly";
@@ -45,7 +45,7 @@ class Frequency {
     public String YEARLY = "yearly";
 }
 
-public class SyncData {
+public final class SyncData {
     private Page page = new Page();
     private Api api = new Api();
     private Frequency frequency = new Frequency();

@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import org.springframework.jdbc.core.RowMapper;
 
-public class EventRowMapper implements RowMapper<Event> {
+public final class EventRowMapper implements RowMapper<Event> {
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Event(

@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-public class ServiceResult<T> {
+public final class ServiceResult<T> {
     public String status;
     public Exception exception;
     public T data;

@@ -2,7 +2,7 @@ package peter.finance_calendar.models;
 
 import java.time.LocalDate;
 
-public class Expense {
+public final class Expense {
     private String id;
     private String user_id;
     private String name;

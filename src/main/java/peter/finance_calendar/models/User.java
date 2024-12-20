@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-public class User extends Auth {
+public final class User extends Auth {
     private String id;
     private String name;
     private String password;

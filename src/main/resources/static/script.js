@@ -555,23 +555,18 @@ var events = {
     })
   },
 
-  '.day-block:dblclick': e => {
-    var isEvent = e.srcElement
-    while (isEvent && !isEvent.classList.contains('event')) {
-      isEvent = isEvent.parentElement
+  'window:dblclick': e => {
+    var dayblock = e.srcElement
+    while (dayblock && !dayblock.classList.contains('day-block')) {
+      dayblock = dayblock.parentElement
     }
-    if (!isEvent) {
-      var date = e.srcElement
-      while (date && !date.classList.contains('day-block')) {
-        date = date.parentElement
-      }
-
-      fc.api('POST', Api.ADD_EVENT + '/' + date.dataset.year + '-' + date.dataset.month + '-' + date.dataset.date).then(res => {
+    if (dayblock) {
+      
+      fc.api('POST', Api.ADD_EVENT + '/' + dayblock.dataset.year + '/' + dayblock.dataset.month + '/' + dayblock.dataset.date).then(res => {
         if (res.status == 'success') {
-          document.getElementById('calendar').outerHTML = res.template
-          EditEvent(e, res.eventId)
+          EditEvent(e, res.data.id);
         }
-      })
+      });
     }
   },
 

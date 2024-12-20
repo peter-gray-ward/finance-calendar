@@ -1,6 +1,6 @@
 package peter.finance_calendar.models;
 
-public class Debt {
+public final class Debt {
     public String id;
     public String user_id;
     public String creditor;
