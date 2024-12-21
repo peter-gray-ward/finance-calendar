@@ -56,8 +56,25 @@ var fc = {
       });
       xhr.send(JSON.stringify(data));
     });
+  },
+  focus: {
+    element: null,
+    offset: 0
   }
 };
+
+function saveFocus() {
+  fc.focus.element = document.activeElement;
+}
+
+// Function to restore the focus state
+function restoreFocus() {
+  var newElement = document.getElementById(fc.focus.element.id);
+  if (newElement) {
+    newElement.parentElement.replaceChild(fc.focus.element, newElement);
+    fc.focus.element.focus();
+  }
+}
 
 var SerializeAndSave = undefined;
 
@@ -92,13 +109,19 @@ function SerializeAndSaveDebt(id) {
   fc.api('POST', Api.UPDATE_DEBT + '/' + id, json);
 }
 
+function decodeHTML(html) {
+  var txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
 function SerializeEvent() {
   var eventEdit = document.getElementById("event-edit");
   var modalEvent = eventEdit.children[0]
   return {  
     id: eventEdit.dataset.id,
     recurrenceid: eventEdit.dataset.recurrenceid,
-    summary: document.querySelector('.upper-div-collection div[name="summary"]').innerHTML,
+    summary: decodeHTML(document.querySelector('.upper-div-collection div[name="summary"]').innerHTML),
     date: moment($(modalEvent.querySelector('input[name="date"]')).val()).format('yyyy-MM-DD'),
     recurrenceenddate:  moment($(modalEvent.querySelector('input[name="recurrenceenddate"]')).val()).format('yyyy-MM-DD'), 
     amount: document.querySelector('.upper-div-collection input[name="amount"]').value,
@@ -187,7 +210,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -199,7 +222,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -216,7 +239,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-all-these-events').innerHTML = newButtonText + ' all'
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -233,7 +256,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template
         e.srcElement.innerHTML = newButtonText
         document.querySelector('#clude-this-event').innerHTML = newButtonText.replace(' all', '')
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -453,8 +476,7 @@ var events = {
       process.refreshing = false;
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template;
-        ADD_EVENTS()
-        ScrollToFirstOfMonth();
+        SetupPage();
       }
     });   
   },
@@ -477,8 +499,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template;
         document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
-        ADD_EVENTS()
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -488,8 +509,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template;
         document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
-        ADD_EVENTS()
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -499,8 +519,7 @@ var events = {
         document.getElementById('calendar').outerHTML = res.template;
         document.getElementById('month-name').innerHTML = Months[res.data.month - 1]
         document.getElementById('year-name').innerHTML = res.data.year
-        ADD_EVENTS()
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -538,7 +557,7 @@ var events = {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         document.querySelector('.modal').remove()
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -550,7 +569,7 @@ var events = {
     fc.api('DELETE', Api.DELETE_ALL_THESE_EVENTS + '/' + eventId.dataset.recurrenceid).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
-        ScrollToFirstOfMonth()
+        SetupPage()
       }
     })
   },
@@ -588,11 +607,12 @@ function ChangeCheckingBalance(e) {
     var value = $('#checking-balance').val()
     try {
       value = Number(value).toFixed(2)
+      saveFocus();
       fc.api('POST', Api.SAVE_CHECKING_BALANCE + '/' + value).then(res => {
         if (res.status == 'success') {
           document.getElementById('calendar').outerHTML = res.template
-          ScrollToFirstOfMonth()
-          ADD_EVENTS()
+          SetupPage()
+          restoreFocus();
         }
       })
     } catch (error) {
@@ -610,8 +630,13 @@ fc.sync().then(res => {
   Page = res.data.page;
   Months = res.data.months;
 
-  ScrollToFirstOfMonth(0)
+  SetupPage()
 });
+
+function SetupPage() {
+  ScrollToFirstOfMonth()
+  ADD_EVENTS()
+}
 
 
 function ScrollToFirstOfMonth(offset = 0) {
@@ -625,7 +650,7 @@ function ScrollToFirstOfMonth(offset = 0) {
 }
 
 window.addEventListener('resize', function(event) {
-  ScrollToFirstOfMonth(0);
+  SetupPage(0);
   runTemps();
 });
 
