@@ -213,10 +213,10 @@ public class CalendarService {
                 new EventRowMapper(),
                 eventId
             );
-            return new ServiceResult("success", null, event);
+            return new ServiceResult("success", event);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ServiceResult<>("error", e);
+            return new ServiceResult<>("error", null);
         }
     }
    
@@ -313,15 +313,16 @@ public class CalendarService {
         try {
             // Fetch current event from the database
             Event currentEvent = jdbcTemplate.queryForObject(
-                "SELECT * FROM public.event WHERE id = ?",
-                new EventRowMapper(),
+                "SELECT id, recurrenceid, summary, date, recurrenceenddate, amount, total, balance, exclude, frequency, user_id"
+                + " FROM public.event WHERE id = ?",
+                new EventRowMapper(true),
                 UUID.fromString(event.getId())
             );
 
-            LocalDate currentDate = currentEvent.getDate();
-            LocalDate newDate = event.getDate();
-            LocalDate currentRecurrenceEndDate = currentEvent.getRecurrenceenddate();
-            LocalDate newRecurrenceEndDate = event.getRecurrenceenddate();
+            LocalDate currentDate = currentEvent.getDate().atStartOfDay().toLocalDate();
+            LocalDate newDate = event.getDate().atStartOfDay().toLocalDate();
+            LocalDate currentRecurrenceEndDate = currentEvent.getRecurrenceenddate().atStartOfDay().toLocalDate();
+            LocalDate newRecurrenceEndDate = event.getRecurrenceenddate().atStartOfDay().toLocalDate();
 
             // Check if dates are different and update accordingly
             if (!currentDate.isEqual(newDate)) {

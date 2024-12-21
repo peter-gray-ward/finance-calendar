@@ -1,5 +1,6 @@
 package peter.finance_calendar.models;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 public final class Event {
@@ -15,7 +16,19 @@ public final class Event {
 	private String frequency;
 	private String user_id;
 
-	public Event(String id, String recurrenceid, String summary, LocalDate date, LocalDate recurrenceenddate, Double amount, Double total, Double balance, Boolean exclude, String frequency, String user_id) {
+	public Event(
+		String id,
+		String recurrenceid,
+		String summary,
+		LocalDate date,
+		LocalDate recurrenceenddate,
+		Double amount,
+		Double total,
+		Double balance,
+		Boolean exclude,
+		String frequency,
+		String user_id
+	) {
 		this.id = id;
 		this.recurrenceid = recurrenceid;
 		this.summary = summary;
@@ -116,4 +129,25 @@ public final class Event {
 	public void setUserId(String user_id) {
 		this.user_id = user_id;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder("Event(\n");
+		Class<?> cls = this.getClass();
+		try {
+			for (Field f : cls.getDeclaredFields()) {
+				f.setAccessible(true); // Ensure private fields can be accessed
+				str.append(f.getName())
+				.append(": ")
+				.append(f.get(this)) // Get the value of the field
+				.append("\n");
+			}
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return "Error generating toString: " + e.getMessage();
+		}
+		str.append(")");
+		return str.toString();
+	}
+
 }

@@ -6,10 +6,20 @@ import java.time.LocalDate;
 
 import org.springframework.jdbc.core.RowMapper;
 
+
+// id, recurrenceid, summary, date, recurrenceenddate, amount, total, balance, exclude, frequency, user_id
 public final class EventRowMapper implements RowMapper<Event> {
+    private boolean print = false;
+    public EventRowMapper() {
+        super();
+    }
+    public EventRowMapper(boolean print) {
+        super();
+        this.print = print;
+    }
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Event(
+        Event event = new Event(
             rs.getString("id"),
             rs.getString("recurrenceid"),
             rs.getString("summary"),
@@ -22,6 +32,7 @@ public final class EventRowMapper implements RowMapper<Event> {
             rs.getString("frequency"),
             rs.getString("user_id")
         );
+        return event;
     }
 }
 
