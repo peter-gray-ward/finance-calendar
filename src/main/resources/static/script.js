@@ -133,6 +133,8 @@ function EditEvent(event, eventId) {
   fc.api('GET', Api.GET_EVENT + '/' + eventId).then(res => {
     if (res.status !== 'success') return alert(res.status)
 
+    document.getElementById(eventId).classList.add('selected');
+
     var modal = document.createElement('div');
     modal.classList.add('modal');
     modal.classList.add('event-modal')
@@ -291,6 +293,7 @@ var events = {
     } else if (!isModal) {
       if (document.querySelector('.modal')) {
         document.querySelector('.modal').remove()
+        $(".event.selected").removeClass("selected");
       }
     }
     if (eventTitle) {
@@ -583,6 +586,7 @@ var events = {
       
       fc.api('POST', Api.ADD_EVENT + '/' + dayblock.dataset.year + '/' + dayblock.dataset.month + '/' + dayblock.dataset.date).then(res => {
         if (res.status == 'success') {
+          document.getElementById('calendar').outerHTML = res.template
           EditEvent(e, res.data.id);
         }
       });

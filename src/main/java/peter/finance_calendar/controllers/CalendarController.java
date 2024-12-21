@@ -145,8 +145,8 @@ public class CalendarController {
         ServiceResult<Event> eventResult = calendarService.addEvent(user, year, month, date);
         if (eventResult.status.equals("success")) {
             Event event = (Event) eventResult.data;
-            String eventFragment = calendarService.generateEventFragment(event);
-            return new ResponseEntity<>(new ControllerResponse<>("success", event, eventFragment), HttpStatus.OK);
+            String calendarFragment = calendarService.generateCalendarFragment(user, year, month);
+            return new ResponseEntity<>(new ControllerResponse<>("success", event, calendarFragment), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ControllerResponse<>(eventResult.status), HttpStatus.INTERNAL_SERVER_ERROR);
     }
