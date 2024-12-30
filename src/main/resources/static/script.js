@@ -125,7 +125,7 @@ function SerializeEvent() {
     date: moment($(modalEvent.querySelector('input[name="date"]')).val()).format('yyyy-MM-DD'),
     recurrenceenddate:  moment($(modalEvent.querySelector('input[name="recurrenceenddate"]')).val()).format('yyyy-MM-DD'), 
     amount: document.querySelector('.upper-div-collection input[name="amount"]').value,
-    frequency: document.getElementById('time-container').querySelector('.select-container input[name="frequency"]').innerHTML
+    frequency: document.getElementById('time-container').querySelector('.select-container input[name="frequency"]').value 
   };
 }
 
@@ -182,6 +182,9 @@ var events = {
     if (!input.parentElement.classList.contains('active')) {
       input.parentElement.classList.add('active');
       var options = eval(input.dataset.options);
+      if (!options) {
+        options = ['daily','weekly','biweekly','monthly']
+      }
       var width = getComputedStyle(input.parentElement.children[0]).width
       var i = 0;
       for (var option of options) {
@@ -219,12 +222,14 @@ var events = {
 
   '#save-this-and-future-events:click': (e) => {
     var event = SerializeEvent()
+    document.body.style.cursor = 'wait';
     fc.api('PUT', Api.SAVE_THIS_AND_FUTURE_EVENTS, event).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
         $('.modal').addClass('saved')
         setTimeout(() => $('.modal').removeClass('saved'), 1000)
         SetupPage()
+        document.body.style.cursor = 'default';
       }
     })
   },
@@ -382,7 +387,13 @@ var events = {
       default:
         break;
       }
+
+      
     }
+
+    const sc = $(event.srcElement).closest('.select-container')[0];
+    sc.querySelectorAll('.option').forEach(o => o.remove());
+    sc.classList.remove('active');
   },
 
   '.add-expense:click': function(event) {
@@ -475,7 +486,6 @@ var events = {
     $('#refresh-calendar').addClass('refreshing');
     fc.api('GET', Api.REFRESH_CALENDAR).then(res => {
       $('#refresh-calendar').removeClass('refreshing');
-      debugger
       process.refreshing = false;
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template;

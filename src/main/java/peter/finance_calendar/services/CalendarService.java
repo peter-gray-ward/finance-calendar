@@ -323,6 +323,9 @@ public class CalendarService {
             LocalDate newDate = event.getDate().atStartOfDay().toLocalDate();
             LocalDate currentRecurrenceEndDate = currentEvent.getRecurrenceenddate().atStartOfDay().toLocalDate();
             LocalDate newRecurrenceEndDate = event.getRecurrenceenddate().atStartOfDay().toLocalDate();
+            String currentFrequency = event.getFrequency();
+            Boolean differentFrequencies = currentFrequency.equals(event.getFrequency());
+
 
             // Check if dates are different and update accordingly
             if (!currentDate.isEqual(newDate)) {
@@ -350,8 +353,17 @@ public class CalendarService {
             }
 
             // Handle changes to recurrence end date
-            if (!currentRecurrenceEndDate.isEqual(newRecurrenceEndDate)) {
-                if (newRecurrenceEndDate.isBefore(currentRecurrenceEndDate)) {
+            if (!currentRecurrenceEndDate.isEqual(newRecurrenceEndDate) || differentFrequencies) {
+                if (differentFrequencies) {
+                    
+                    jdbcTemplate.update(
+                        "DELETE FROM public.event "
+                        + "WHERE user_id = ? "
+                        + "AND recurrenceid = ? ",
+                        UUID.fromString(user.getId()),
+                        UUID.fromString(event.getRecurrenceid())
+                    );
+                } else if (newRecurrenceEndDate.isBefore(currentRecurrenceEndDate)) {
                     jdbcTemplate.update(
                         "DELETE FROM public.event "
                         + "WHERE user_id = ? "
@@ -361,8 +373,11 @@ public class CalendarService {
                         UUID.fromString(event.getRecurrenceid()),
                         newRecurrenceEndDate
                     );
-                } else if (newRecurrenceEndDate.isAfter(currentRecurrenceEndDate)) {
-                    LocalDate latestDate = currentRecurrenceEndDate;
+                }
+
+                if (newRecurrenceEndDate.isAfter(currentRecurrenceEndDate) || differentFrequencies) {
+                    LocalDate latestDate = differentFrequencies ? event.getDate() : currentRecurrenceEndDate;
+
                     while (latestDate.isBefore(newRecurrenceEndDate)) {
                         String sql = "INSERT INTO public.event "
                             + "(id, recurrenceid, summary, date, recurrenceenddate, amount, total, balance, exclude, frequency, user_id) "
@@ -381,8 +396,8 @@ public class CalendarService {
                             event.getFrequency(),
                             UUID.fromString(user.getId())
                         );
+                        
 
-                        // Increment `latestDate` based on the frequency
                         switch (event.getFrequency()) {
                             case "daily" -> latestDate = latestDate.plusDays(1);
                             case "weekly" -> latestDate = latestDate.plusWeeks(1);
@@ -390,9 +405,12 @@ public class CalendarService {
                             case "monthly" -> latestDate = latestDate.plusMonths(1);
                             case "yearly" -> latestDate = latestDate.plusYears(1);
                         }
+
                     }
                 }
             }
+
+
 
             jdbcTemplate.update(
                 "UPDATE public.event"
@@ -413,6 +431,7 @@ public class CalendarService {
 
             return new ServiceResult<>("success", event);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ServiceResult<>("error", null);
         }
     }
