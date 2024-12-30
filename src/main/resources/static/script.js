@@ -582,7 +582,11 @@ var events = {
     while (dayblock && !dayblock.classList.contains('day-block')) {
       dayblock = dayblock.parentElement
     }
-    if (dayblock) {
+    var total = e.srcElement
+    while (total && !total.classList.contains('total')) {
+      total = total.parentElement
+    }
+    if (dayblock && !total) {
       
       fc.api('POST', Api.ADD_EVENT + '/' + dayblock.dataset.year + '/' + dayblock.dataset.month + '/' + dayblock.dataset.date).then(res => {
         if (res.status == 'success') {

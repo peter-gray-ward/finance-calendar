@@ -47,13 +47,6 @@ public class PageController {
             }
 
             String userId = user.getId();
-
-            Enumeration<String> e = session.getAttributeNames();
-            while (e.hasMoreElements()) {
-                String attrName = e.nextElement();
-                System.out.println(attrName);
-            }
-
             Integer year = null;
             Integer month = null;
 

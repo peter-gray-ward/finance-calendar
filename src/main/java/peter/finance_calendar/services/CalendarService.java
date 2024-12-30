@@ -394,6 +394,23 @@ public class CalendarService {
                 }
             }
 
+            jdbcTemplate.update(
+                "UPDATE public.event"
+                + " SET summary = ?, amount = ?, total = ?, balance = ?, frequency = ?"
+                + " WHERE user_id = ?"
+                + " AND recurrenceid = ?",
+                event.getSummary(),
+                event.getAmount(),
+                event.getTotal(),
+                event.getBalance(),
+                event.getFrequency(),
+                UUID.fromString(user.getId()),
+                UUID.fromString(event.getRecurrenceid())
+            );
+
+
+            this.updateEventTotals(user);
+
             return new ServiceResult<>("success", event);
         } catch (Exception e) {
             return new ServiceResult<>("error", null);
