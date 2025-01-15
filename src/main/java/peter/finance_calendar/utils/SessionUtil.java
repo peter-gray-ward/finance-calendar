@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import peter.finance_calendar.models.User;
 
-@Component
+
 public class SessionUtil {
 
     public static void login(HttpSession session, User user) {
@@ -45,6 +45,6 @@ public class SessionUtil {
                 return cookie.getValue();
             }
         }
-        return null;
+        return "";
     }   
 }
