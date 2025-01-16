@@ -582,6 +582,7 @@ var events = {
     fc.api('DELETE', Api.DELETE_ALL_THESE_EVENTS + '/' + eventId.dataset.recurrenceid).then(res => {
       if (res.status == 'success') {
         document.getElementById('calendar').outerHTML = res.template
+        document.querySelector('.modal').remove()
         SetupPage()
       }
     })

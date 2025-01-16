@@ -445,6 +445,7 @@ public class CalendarService {
                 UUID.fromString(user.getId()),
                 UUID.fromString(id)
             );
+            this.updateEventTotals(user);
             return new ServiceResult<>("success");
         } catch (Exception e) {
             return new ServiceResult<>("error", null);
@@ -460,6 +461,7 @@ public class CalendarService {
                 UUID.fromString(user.getId()),
                 UUID.fromString(recurrenceid)
             );
+            this.updateEventTotals(user);
             return new ServiceResult<>("success");
         } catch (Exception e) {
             return new ServiceResult<>("error", null);

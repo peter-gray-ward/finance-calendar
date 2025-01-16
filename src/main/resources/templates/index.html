@@ -28,7 +28,7 @@
                     <div class="th">End Date</div>
                 </div>
             
-                <div th:replace="expense :: expense"></div>
+                <div th:replace="~{expense :: expense}"></div>
             </div>
             <div class="tr button-row-right">
                 <button class="add-expense">+</button>
@@ -72,7 +72,7 @@
             <div class="weekend">Sat</div>
         </div>
     
-        <div id="calendar" th:replace="calendar :: calendar"></div>
+        <div id="calendar" th:replace="~{calendar :: calendar}"></div>
     </div>
     <button id="expand-to-news">N</button>
     <div id="right-panel">
